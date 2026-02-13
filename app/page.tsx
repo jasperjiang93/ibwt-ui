@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
@@ -37,6 +38,16 @@ export default function Home() {
         {/* Hero */}
         <section className="min-h-[90vh] flex items-center justify-center px-6">
           <div className="max-w-4xl mx-auto text-center">
+            {/* Logo */}
+            <Image
+              src="/logo-transparent.png"
+              alt="IBWT Logo"
+              width={140}
+              height={140}
+              className="mx-auto mb-8"
+              priority
+            />
+
             {/* Tagline */}
             <div className="inline-flex items-center gap-2 px-4 py-2 mb-8 border border-[rgba(212,175,55,0.3)] rounded-full text-[#d4af37] text-sm">
               <span className="relative flex h-2 w-2">

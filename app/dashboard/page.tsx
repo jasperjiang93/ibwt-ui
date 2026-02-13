@@ -1,10 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { EscrowTestModal } from "@/components/escrow-test-modal";
 
 export default function DashboardPage() {
   const { publicKey } = useWallet();
+  const [showEscrowTest, setShowEscrowTest] = useState(false);
 
   const short = publicKey ? `${publicKey.toBase58().slice(0, 4)}...${publicKey.toBase58().slice(-4)}` : "";
 
@@ -70,6 +73,23 @@ export default function DashboardPage() {
           </p>
         </div>
       </div>
+
+      {/* Dev Tools */}
+      {process.env.NEXT_PUBLIC_ENV !== "production" && (
+        <div className="card p-6 border-dashed !border-[rgba(212,175,55,0.3)]">
+          <h2 className="text-lg font-semibold mb-2 text-[#888]">Dev Tools</h2>
+          <button
+            onClick={() => setShowEscrowTest(true)}
+            className="px-4 py-2 text-sm border border-[rgba(212,175,55,0.3)] text-[#d4af37] rounded-lg hover:bg-[rgba(212,175,55,0.1)] transition"
+          >
+            Test Escrow Contract
+          </button>
+        </div>
+      )}
+
+      {showEscrowTest && (
+        <EscrowTestModal onClose={() => setShowEscrowTest(false)} />
+      )}
     </div>
   );
 }
