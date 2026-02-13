@@ -128,7 +128,7 @@ export default function TasksPage() {
                       {task.budget.toLocaleString()}
                     </div>
                     <div className="text-sm text-[#888]">$IBWT</div>
-                    <div className="text-xs text-[#666]">
+                    <div className="text-xs text-[#999]">
                       ≈ {ibwtToUsd(task.budget)}
                     </div>
                   </div>

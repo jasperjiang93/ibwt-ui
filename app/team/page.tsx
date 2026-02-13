@@ -1,10 +1,36 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 
-export const metadata = {
-  title: "Team - IBWT",
+export const metadata: Metadata = {
+  title: "Team",
   description: "Meet the team behind IBWT — In Bot We Trust",
+  keywords: [
+    "IBWT team",
+    "In Bot We Trust",
+    "AI marketplace team",
+    "Web3 AI",
+  ],
+  openGraph: {
+    title: "Team",
+    description: "Meet the team behind IBWT — In Bot We Trust",
+    url: "https://www.inbotwetrust.com/team",
+    siteName: "IBWT",
+    images: [
+      {
+        url: "https://www.inbotwetrust.com/og-image.png",
+        width: 1200,
+        height: 630,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Team",
+    description: "Meet the team behind IBWT — In Bot We Trust",
+    images: ["https://www.inbotwetrust.com/og-image.png"],
+  },
 };
 
 export default function TeamPage() {
@@ -28,10 +54,10 @@ export default function TeamPage() {
             <div className="card p-8 text-center max-w-sm">
               <img
                 src="https://avatars.githubusercontent.com/u/16094312?v=4"
-                alt="Jasper"
+                alt="Jasper Jiang"
                 className="w-24 h-24 rounded-full mx-auto mb-4"
               />
-              <h2 className="text-2xl font-bold text-[#e5e5e5] mb-1">Jasper</h2>
+              <h2 className="text-2xl font-bold text-[#e5e5e5] mb-1">Jasper Jiang</h2>
               <p className="text-[#888] mb-4">Founder & Engineer</p>
               <ul className="text-[#666] text-sm mb-6 space-y-1.5 text-left">
                 <li className="flex items-start gap-2">

@@ -1,9 +1,40 @@
+import type { Metadata } from "next";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 
-export const metadata = {
-  title: "Whitepaper - IBWT",
-  description: "In Bot We Trust: The Marketplace Layer for AI Tools",
+export const metadata: Metadata = {
+  title: "Whitepaper",
+  description:
+    "In Bot We Trust: The Marketplace Layer for AI Tools",
+  keywords: [
+    "IBWT whitepaper",
+    "AI marketplace",
+    "MCP tools",
+    "bot economy",
+    "Solana AI",
+    "tokenomics",
+  ],
+  openGraph: {
+    title: "Whitepaper",
+    description:
+      "In Bot We Trust: The Marketplace Layer for AI Tools",
+    url: "https://www.inbotwetrust.com/whitepaper",
+    siteName: "IBWT",
+    images: [
+      {
+        url: "https://www.inbotwetrust.com/og-image.png",
+        width: 1200,
+        height: 630,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Whitepaper",
+    description:
+      "In Bot We Trust: The Marketplace Layer for AI Tools",
+    images: ["https://www.inbotwetrust.com/og-image.png"],
+  },
 };
 
 export default function WhitepaperPage() {
@@ -16,7 +47,7 @@ export default function WhitepaperPage() {
             In Bot We Trust
           </h1>
           <p className="text-[#888] text-lg mb-12">
-            A Whitepaper — Version 2.0, February 2026
+            A Whitepaper — Version 1.0, February 2026
           </p>
 
           {/* TL;DR */}
@@ -26,10 +57,10 @@ export default function WhitepaperPage() {
               AI agents need tools. Tools need to get paid. We connect them — with $IBWT as the settlement currency on Solana.
             </p>
             <ul className="list-disc list-inside space-y-2 mt-4">
-              <li><strong className="text-[#e5e5e5]">$IBWT</strong> = Payment currency (Solana, fair launch on pump.fun)</li>
+              <li><strong className="text-[#e5e5e5]">$IBWT</strong> = Payment currency (Solana, launched on pump.fun)</li>
               <li><strong className="text-[#e5e5e5]">MCP Registry</strong> = Wrap any tool, list it, earn per call</li>
               <li><strong className="text-[#e5e5e5]">Agent Registry</strong> = Rent out your AI agent for tasks</li>
-              <li><strong className="text-[#e5e5e5]">Trust Layer</strong> = Stake collateral, bad actors get slashed</li>
+              <li><strong className="text-[#e5e5e5]">Trust Layer</strong> = On-chain reputation + staking — immutable records, bad actors get slashed</li>
             </ul>
           </Section>
 
@@ -38,46 +69,45 @@ export default function WhitepaperPage() {
             <h3 className="text-lg font-semibold text-[#e5e5e5] mb-3">AI Tools Are Fragmented</h3>
             <p>
               AI agents are becoming autonomous economic actors — executing tasks, calling APIs, generating content.
-              But the infrastructure to monetize and trust these interactions is missing:
+              While tool directories and API gateways exist, the infrastructure connecting agents to tools remains fragmented:
             </p>
             <Table
               headers={["Need", "Current State"]}
               rows={[
-                ["Payment", "No standard way for AI to pay for tools"],
-                ["Discovery", "No marketplace for MCP tools or agents"],
-                ["Trust", "No accountability — bad tools face no consequences"],
-                ["Monetization", "Tool builders can't easily charge per call"],
+                ["Payment", "Most AI-to-tool payments still rely on API keys and credit cards — not designed for agent-native, per-call settlement"],
+                ["Discovery + Execution", "MCP directories exist, but listing a tool and actually getting paid per call in a single flow is still disconnected"],
+                ["Trust", "Tool quality varies widely — there's no economic mechanism to hold providers accountable for bad output"],
+                ["Agent Economy", "No unified marketplace where agents can find work, bid on tasks, and get paid autonomously"],
               ]}
             />
           </Section>
 
           {/* The Solution */}
           <Section title="2. The Solution: IBWT Platform">
-            <p>IBWT is a three-layer marketplace:</p>
+            <p>
+              IBWT is a unified marketplace where AI tools, agents, and tasks converge — with $IBWT as the native settlement currency.
+            </p>
             <div className="my-6 p-6 bg-[rgba(212,175,55,0.05)] border border-[rgba(212,175,55,0.2)] rounded-lg font-mono text-sm text-[#888] whitespace-pre overflow-x-auto">
 {`┌───────────────────────────────────────────┐
 │             IBWT PLATFORM                 │
 ├───────────────────────────────────────────┤
-│  MCP Registry (Tool Layer)                │
-│  → Wrap any API/script as MCP tool        │
-│  → Per-call pricing in $IBWT              │
-│  → Platform proxies + tracks usage        │
+│               MCP Layer                   │
 ├───────────────────────────────────────────┤
-│  Agent Registry (Agent Layer)             │
-│  → Register AI agents                     │
-│  → Set availability + capabilities        │
-│  → Webhook for task notifications         │
+│              Agent Layer                  │
 ├───────────────────────────────────────────┤
-│  Task Marketplace (Task Layer)            │
-│  → Users post tasks                       │
-│  → Agents bid                             │
-│  → Escrow payment in $IBWT                │
+│              Task Layer                   │
 └───────────────────────────────────────────┘`}
             </div>
+            <p>
+              Three layers, one token. Providers earn $IBWT for delivering value, consumers spend $IBWT to get work done, and the trust layer keeps everyone accountable.
+            </p>
           </Section>
 
           {/* How It Works */}
-          <Section title="3. How It Works">
+          <Section title="3. How It Works (Planned)">
+            <p className="text-sm text-[#666] italic mb-4">
+              The following describes the intended user flow. See our <a href="/roadmap" className="text-[#d4af37] hover:underline">Roadmap</a> for current progress.
+            </p>
             <h3 className="text-lg font-semibold text-[#e5e5e5] mb-3">For MCP Providers</h3>
             <ol className="list-decimal list-inside space-y-2 mb-6">
               <li>Wrap your script/API as an MCP tool</li>
@@ -111,12 +141,15 @@ export default function WhitepaperPage() {
                 ["Name", "In Bot We Trust"],
                 ["Symbol", "$IBWT"],
                 ["Blockchain", "Solana"],
-                ["Launch", "pump.fun (fair launch)"],
+                ["Launch", "Launched on pump.fun"],
                 ["Total Supply", "1,000,000,000 (1B)"],
-                ["Pre-mine", "None"],
-                ["Team Allocation", "None"],
+                ["Pre-mine", "None — all tokens entered circulation via pump.fun bonding curve"],
+                ["Founder Holdings", "~15% purchased on the open market at launch"],
               ]}
             />
+            <p className="text-sm text-[#666]">
+              Token contract: <a href="https://pump.fun/coin/Co4KTCKPdAnFhJWNUbPdCn3VFF5xSATaxXpPaGVepump" target="_blank" rel="noopener noreferrer" className="text-[#d4af37] hover:underline break-all">Co4KTCKPdAnFhJWNUbPdCn3VFF5xSATaxXpPaGVepump</a>
+            </p>
             <h3 className="text-lg font-semibold text-[#e5e5e5] mt-6 mb-3">Utility</h3>
             <ul className="list-disc list-inside space-y-2">
               <li>Pay for MCP tool calls</li>
@@ -130,40 +163,26 @@ export default function WhitepaperPage() {
           {/* Trust Layer */}
           <Section title="5. Trust Layer">
             <p>
-              The core innovation: economic accountability for AI tool providers.
+              Quality matters. IBWT will include a trust and reputation system to hold providers accountable — ensuring bad actors are penalized and reliable providers are rewarded.
             </p>
-            <div className="my-6 p-6 bg-[rgba(212,175,55,0.05)] border border-[rgba(212,175,55,0.2)] rounded-lg font-mono text-sm text-[#888] whitespace-pre-line">
-{`Provider stakes $IBWT
-       ↓
-Agent calls tool → pays $IBWT
-       ↓
-Agent rates output
-       ↓
-Good output → Provider keeps stake + earns fee
-Bad output  → Provider loses stake (slashed)`}
-            </div>
-            <p>
-              This creates skin in the game. Providers who deliver quality tools earn more.
-              Bad actors lose their collateral.
+            <ul className="list-disc list-inside space-y-2 mt-4">
+              <li>Providers stake $IBWT as collateral — skin in the game</li>
+              <li>Poor quality results in stake slashing</li>
+              <li>Reputation scores help users and agents choose trusted providers</li>
+            </ul>
+            <p className="mt-4">
+              The exact implementation of the reputation mechanism is part of our ongoing development. Details will be shared as we build.
             </p>
           </Section>
 
           {/* Team */}
           <Section title="6. Team">
-            <div className="max-w-lg mt-4">
-              <div className="p-6 border border-[rgba(212,175,55,0.2)] rounded-lg flex items-start gap-4">
-                <img src="https://avatars.githubusercontent.com/u/16094312?v=4" alt="Jasper" className="w-12 h-12 rounded-full shrink-0" />
-                <div>
-                  <p className="font-semibold text-[#e5e5e5] mb-2">Jasper</p>
-                  <ul className="text-[#888] text-sm space-y-1">
-                    <li className="flex items-start gap-2"><span className="text-[#d4af37]">→</span>Founding Engineer @ InfStones</li>
-                    <li className="flex items-start gap-2"><span className="text-[#d4af37]">→</span>Senior Web3 Engineering Manager</li>
-                    <li className="flex items-start gap-2"><span className="text-[#d4af37]">→</span>6+ years hands-on Web3 experience</li>
-                    <li className="flex items-start gap-2"><span className="text-[#d4af37]">→</span>Built blockchain infrastructure products from 0 to 1</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
+            <p>
+              IBWT is founded by <strong className="text-[#e5e5e5]">Jasper Jiang</strong> — a Web3 engineer with 6+ years of hands-on experience building blockchain infrastructure from 0 to 1.
+            </p>
+            <p>
+              <a href="/team" className="text-[#d4af37] hover:underline">Meet the full team →</a>
+            </p>
           </Section>
 
           {/* Risks */}
@@ -185,7 +204,7 @@ Bad output  → Provider loses stake (slashed)`}
           {/* CTA */}
           <div className="mt-16 text-center">
             <p className="text-2xl font-bold text-[#d4af37] mb-2">In Bot We Trust.</p>
-            <p className="text-[#888]">— Jasper, February 2026</p>
+            <p className="text-[#888]">— Jasper Jiang, February 2026</p>
           </div>
         </article>
       </main>

@@ -12,6 +12,7 @@ export function Nav() {
   const pathname = usePathname();
   const { connected } = useWallet();
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [waitlistOpen, setWaitlistOpen] = useState(false);
 
   const isActive = (path: string) => {
@@ -27,7 +28,7 @@ export function Nav() {
           IBWT
         </Link>
 
-        {/* Center Nav */}
+        {/* Center Nav — desktop */}
         <div className="hidden md:flex items-center gap-8">
           <NavLink href="/tasks" active={isActive("/tasks")}>
             Tasks
@@ -95,8 +96,47 @@ export function Nav() {
               Sign In
             </button>
           )}
+
+          {/* Hamburger — mobile only */}
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="md:hidden flex flex-col justify-center items-center w-8 h-8 gap-1.5"
+            aria-label="Toggle menu"
+          >
+            <span className={`block w-5 h-0.5 bg-[#e5e5e5] transition-all ${mobileOpen ? "translate-y-1 rotate-45" : ""}`} />
+            <span className={`block w-5 h-0.5 bg-[#e5e5e5] transition-all ${mobileOpen ? "opacity-0" : ""}`} />
+            <span className={`block w-5 h-0.5 bg-[#e5e5e5] transition-all ${mobileOpen ? "-translate-y-1 -rotate-45" : ""}`} />
+          </button>
         </div>
       </div>
+
+      {/* Mobile menu */}
+      {mobileOpen && (
+        <div className="md:hidden border-t border-[rgba(212,175,55,0.2)] bg-[rgba(10,10,15,0.95)] backdrop-blur-xl">
+          <div className="px-6 py-4 flex flex-col gap-4">
+            <MobileNavLink href="/tasks" active={isActive("/tasks")} onNavigate={() => setMobileOpen(false)}>Tasks</MobileNavLink>
+            <MobileNavLink href="/agents" active={isActive("/agents")} onNavigate={() => setMobileOpen(false)}>Agents</MobileNavLink>
+            <MobileNavLink href="/mcps" active={isActive("/mcps")} onNavigate={() => setMobileOpen(false)}>MCPs</MobileNavLink>
+            <MobileNavLink href="/contact" active={isActive("/contact")} onNavigate={() => setMobileOpen(false)}>Contact</MobileNavLink>
+
+            <div className="border-t border-[rgba(212,175,55,0.1)] pt-4 flex flex-col gap-3">
+              <p className="text-xs text-[#666] uppercase tracking-wider">About</p>
+              <MobileNavLink href="/whitepaper" active={isActive("/whitepaper")} onNavigate={() => setMobileOpen(false)}>Whitepaper</MobileNavLink>
+              <MobileNavLink href="/roadmap" active={isActive("/roadmap")} onNavigate={() => setMobileOpen(false)}>Roadmap</MobileNavLink>
+              <MobileNavLink href="/team" active={isActive("/team")} onNavigate={() => setMobileOpen(false)}>Team</MobileNavLink>
+              <a
+                href="https://pump.fun/coin/Co4KTCKPdAnFhJWNUbPdCn3VFF5xSATaxXpPaGVepump"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#888] hover:text-[#e5e5e5] transition font-medium"
+                onClick={() => setMobileOpen(false)}
+              >
+                Buy $IBWT
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
 
       <WaitlistModal open={waitlistOpen} onClose={() => setWaitlistOpen(false)} />
     </nav>
@@ -116,6 +156,30 @@ function NavLink({
     <Link
       href={href}
       className={`transition font-medium ${
+        active ? "text-[#d4af37]" : "text-[#888] hover:text-[#e5e5e5]"
+      }`}
+    >
+      {children}
+    </Link>
+  );
+}
+
+function MobileNavLink({
+  href,
+  active,
+  onNavigate,
+  children,
+}: {
+  href: string;
+  active: boolean;
+  onNavigate: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={onNavigate}
+      className={`transition font-medium text-lg ${
         active ? "text-[#d4af37]" : "text-[#888] hover:text-[#e5e5e5]"
       }`}
     >

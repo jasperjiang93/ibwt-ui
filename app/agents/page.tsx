@@ -154,7 +154,7 @@ export default function AgentsPage() {
                         {agent.priceRange} $IBWT
                       </span>
                     </div>
-                    <div className="text-xs text-[#666]">
+                    <div className="text-xs text-[#999]">
                       ≈ {ibwtToUsd(Number(agent.priceRange.split("-")[0]))} – {ibwtToUsd(Number(agent.priceRange.split("-")[1]))}
                     </div>
                   </div>

@@ -129,7 +129,7 @@ export default function MCPsPage() {
                       {mcp.pricePerCall}
                     </div>
                     <div className="text-xs text-[#888]">$IBWT/call</div>
-                    <div className="text-xs text-[#666]">
+                    <div className="text-xs text-[#999]">
                       ≈ {ibwtToUsd(mcp.pricePerCall)}
                     </div>
                   </div>

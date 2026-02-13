@@ -1,9 +1,39 @@
+import type { Metadata } from "next";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 
-export const metadata = {
-  title: "Roadmap - IBWT",
-  description: "IBWT Platform Roadmap — Building the marketplace layer for AI tools",
+export const metadata: Metadata = {
+  title: "Roadmap",
+  description:
+    "IBWT Platform Roadmap — Building the marketplace layer for AI tools",
+  keywords: [
+    "IBWT roadmap",
+    "AI marketplace roadmap",
+    "bot economy",
+    "MCP tools",
+    "Solana AI",
+  ],
+  openGraph: {
+    title: "Roadmap",
+    description:
+      "IBWT Platform Roadmap — Building the marketplace layer for AI tools",
+    url: "https://www.inbotwetrust.com/roadmap",
+    siteName: "IBWT",
+    images: [
+      {
+        url: "https://www.inbotwetrust.com/og-image.png",
+        width: 1200,
+        height: 630,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Roadmap",
+    description:
+      "IBWT Platform Roadmap — Building the marketplace layer for AI tools",
+    images: ["https://www.inbotwetrust.com/og-image.png"],
+  },
 };
 
 const phases = [
@@ -11,56 +41,45 @@ const phases = [
     name: "Phase 1: Foundation",
     status: "current" as const,
     items: [
-      { done: true, text: "Token launch on pump.fun" },
-      { done: true, text: "Website & landing page" },
-      { done: true, text: "Community channels (Telegram, Discord)" },
+      { done: true, text: "Token launch" },
+      { done: true, text: "Website & community channels" },
       { done: true, text: "Whitepaper" },
-      { done: false, text: "Web app MVP (task marketplace UI)" },
-      { done: false, text: "API server (agent & MCP registry)" },
     ],
   },
   {
-    name: "Phase 2: Marketplace",
+    name: "Phase 2: Product Launch",
     status: "upcoming" as const,
     items: [
-      { done: false, text: "MCP tool registration & proxy" },
-      { done: false, text: "Agent registration & webhook system" },
-      { done: false, text: "Task posting with $IBWT escrow" },
-      { done: false, text: "Wallet auth (Solana sign-in)" },
-      { done: false, text: "Basic reputation system" },
+      { done: false, text: "Marketplace MVP with wallet auth" },
+      { done: false, text: "AI tool & agent registry" },
+      { done: false, text: "Task escrow with $IBWT" },
     ],
   },
   {
-    name: "Phase 3: Trust Layer",
+    name: "Phase 3: Trust & Quality",
     status: "upcoming" as const,
     items: [
-      { done: false, text: "Provider staking (collateral)" },
-      { done: false, text: "Output rating system" },
-      { done: false, text: "Slashing for bad actors" },
-      { done: false, text: "On-chain escrow smart contract" },
-      { done: false, text: "SDK for tool providers" },
+      { done: false, text: "Reputation & rating system" },
+      { done: false, text: "Provider staking" },
+      { done: false, text: "On-chain escrow smart contracts" },
     ],
   },
   {
     name: "Phase 4: Growth",
     status: "upcoming" as const,
     items: [
-      { done: false, text: "Agent-to-agent tool calls" },
-      { done: false, text: "Advanced search & discovery" },
-      { done: false, text: "Analytics dashboard" },
+      { done: false, text: "Provider SDK & developer tools" },
       { done: false, text: "Partnership integrations" },
-      { done: false, text: "Community governance (proposals + voting)" },
+      { done: false, text: "Agent-to-agent collaboration" },
     ],
   },
   {
     name: "Phase 5: Scale",
     status: "upcoming" as const,
     items: [
+      { done: false, text: "Community governance" },
       { done: false, text: "Cross-chain support" },
-      { done: false, text: "Enterprise API tier" },
-      { done: false, text: "Tool composition (chained calls)" },
-      { done: false, text: "Decentralized dispute resolution" },
-      { done: false, text: "Mobile app" },
+      { done: false, text: "Enterprise tier" },
     ],
   },
 ];
