@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+const VALID_ROLES = ["user", "agent_provider", "mcp_provider", "other"];
+
 export async function POST(request: Request) {
   try {
-    const { email } = await request.json();
+    const { email, role } = await request.json();
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json(
@@ -12,10 +14,12 @@ export async function POST(request: Request) {
       );
     }
 
+    const validRole = VALID_ROLES.includes(role) ? role : "user";
+
     await prisma.waitlistEntry.upsert({
       where: { email },
-      create: { email },
-      update: {},
+      create: { email, role: validRole },
+      update: { role: validRole },
     });
 
     return NextResponse.json({ success: true });

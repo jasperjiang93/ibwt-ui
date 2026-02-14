@@ -1,4 +1,4 @@
-const IBWT_USD_RATE = 0.0001;
+const IBWT_USD_RATE = 0.01;
 
 export function ibwtToUsd(ibwt: number): string {
   const usd = parseFloat((ibwt * IBWT_USD_RATE).toPrecision(10));

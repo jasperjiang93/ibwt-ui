@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   keywords: [
     "IBWT team",
     "In Bot We Trust",
-    "AI marketplace team",
+    "AI infrastructure team",
     "Web3 AI",
   ],
   openGraph: {
@@ -51,62 +51,58 @@ export default function TeamPage() {
 
           {/* Team */}
           <div className="flex justify-center mb-16">
-            <div className="card p-8 text-center max-w-sm">
+            <div className="card p-10 text-center max-w-lg w-full">
               <img
                 src="https://avatars.githubusercontent.com/u/16094312?v=4"
                 alt="Jasper Jiang"
-                className="w-24 h-24 rounded-full mx-auto mb-4"
+                className="w-28 h-28 rounded-full mx-auto mb-5"
               />
-              <h2 className="text-2xl font-bold text-[#e5e5e5] mb-1">Jasper Jiang</h2>
-              <p className="text-[#888] mb-4">Founder & Engineer</p>
-              <ul className="text-[#666] text-sm mb-6 space-y-1.5 text-left">
-                <li className="flex items-start gap-2">
+              <h2 className="text-3xl font-bold text-[#e5e5e5] mb-1">Jasper Jiang</h2>
+              <p className="text-[#888] text-lg mb-2">Founder & Engineer</p>
+              <p className="text-[#d4af37] italic mb-6">
+                Building infrastructure for autonomous AI systems to execute real work.
+              </p>
+              <ul className="text-[#bbb] mb-8 space-y-2.5 text-left">
+                <li className="flex items-start gap-3">
                   <span className="text-[#d4af37] mt-0.5">→</span>
                   <span>Founding Engineer @ InfStones</span>
                 </li>
-                <li className="flex items-start gap-2">
+                <li className="flex items-start gap-3">
                   <span className="text-[#d4af37] mt-0.5">→</span>
                   <span>Senior Web3 Engineering Manager</span>
                 </li>
-                <li className="flex items-start gap-2">
+                <li className="flex items-start gap-3">
                   <span className="text-[#d4af37] mt-0.5">→</span>
-                  <span>6+ years hands-on Web3 experience</span>
+                  <span>6+ years building blockchain infrastructure from 0 to 1</span>
                 </li>
-                <li className="flex items-start gap-2">
+                <li className="flex items-start gap-3">
                   <span className="text-[#d4af37] mt-0.5">→</span>
-                  <span>Built blockchain infrastructure products from 0 to 1</span>
+                  <span>Focused on automation, distributed systems, and AI-driven execution</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-[#d4af37] mt-0.5">→</span>
+                  <span>Active in Web3 infrastructure and developer ecosystems</span>
                 </li>
               </ul>
-              <div className="flex flex-wrap justify-center gap-3 text-sm mb-6">
-                <span className="px-3 py-1 bg-[rgba(212,175,55,0.1)] text-[#d4af37] rounded-full">
-                  Founding Engineer
-                </span>
-                <span className="px-3 py-1 bg-[rgba(212,175,55,0.1)] text-[#d4af37] rounded-full">
-                  6+ Years Web3
-                </span>
-                <span className="px-3 py-1 bg-[rgba(212,175,55,0.1)] text-[#d4af37] rounded-full">
-                  0 → 1 Builder
-                </span>
-              </div>
-              <div className="flex justify-center gap-4">
+              <div className="flex justify-center gap-3">
                 <Link
                   href="https://twitter.com/punkcan"
                   target="_blank"
-                  className="text-[#888] hover:text-[#d4af37] transition"
+                  className="px-4 py-2 rounded-lg bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-[#ccc] hover:text-[#d4af37] hover:border-[rgba(212,175,55,0.3)] transition text-sm font-medium"
                 >
-                  𝕏
+                  𝕏 Twitter
                 </Link>
                 <Link
-                  href="https://github.com/punkcanyang"
+                  href="https://github.com/jasperjiagn93"
                   target="_blank"
-                  className="text-[#888] hover:text-[#e5e5e5] transition"
+                  className="px-4 py-2 rounded-lg bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-[#ccc] hover:text-[#e5e5e5] hover:border-[rgba(255,255,255,0.2)] transition text-sm font-medium"
                 >
                   GitHub
                 </Link>
                 <Link
                   href="https://www.linkedin.com/in/chenming-jiang"
                   target="_blank"
-                  className="text-[#888] hover:text-[#0077b5] transition"
+                  className="px-4 py-2 rounded-lg bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-[#ccc] hover:text-[#0077b5] hover:border-[rgba(0,119,181,0.3)] transition text-sm font-medium"
                 >
                   LinkedIn
                 </Link>

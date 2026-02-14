@@ -4,13 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { WalletButton } from "@/components/wallet-button";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { IconOverview, IconTasks, IconAgents, IconTools, IconLock } from "@/components/icons";
 
 const navItems = [
-  { href: "/dashboard", label: "Overview", icon: "📊" },
-  { href: "/dashboard/tasks", label: "My Tasks", icon: "📋" },
-  { href: "/dashboard/agents", label: "My Agents", icon: "🤖" },
-  { href: "/dashboard/mcps", label: "My Tools", icon: "🛠️" },
-  { href: "/dashboard/botizen", label: "Botizen", icon: "🎖️" },
+  { href: "/dashboard", label: "Overview", icon: IconOverview },
+  { href: "/dashboard/tasks", label: "Tasks", icon: IconTasks },
+  { href: "/dashboard/agents", label: "Agents", icon: IconAgents },
+  { href: "/dashboard/mcps", label: "MCPs", icon: IconTools },
 ];
 
 export default function DashboardLayout({
@@ -19,13 +19,13 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const { connected, publicKey, disconnect } = useWallet();
+  const { connected, publicKey } = useWallet();
 
   if (!connected || !publicKey) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-6">
-          <div className="text-6xl mb-6">🔐</div>
+          <div className="mb-6 flex justify-center"><IconLock size={48} className="text-[#d4af37]" /></div>
           <h2 className="text-2xl font-bold mb-4">Sign in to continue</h2>
           <p className="text-[#888] mb-8">
             Connect your wallet to access the IBWT dashboard
@@ -67,7 +67,7 @@ export default function DashboardLayout({
                     : "text-[#888] hover:bg-[rgba(255,255,255,0.05)] hover:text-[#e5e5e5]"
                 }`}
               >
-                <span className="text-xl">{item.icon}</span>
+                <item.icon size={20} />
                 <span>{item.label}</span>
               </Link>
             );
@@ -82,26 +82,6 @@ export default function DashboardLayout({
           >
             ← Back to Marketplace
           </Link>
-        </div>
-
-        {/* User section */}
-        <div className="p-4 border-t border-[rgba(212,175,55,0.2)]">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-[rgba(212,175,55,0.2)] flex items-center justify-center text-[#d4af37] font-semibold">
-              W
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="font-medium truncate">
-                {publicKey.toBase58().slice(0, 4)}...{publicKey.toBase58().slice(-4)}
-              </div>
-            </div>
-          </div>
-          <button
-            onClick={() => disconnect()}
-            className="w-full px-4 py-2 text-sm text-[#888] hover:text-[#e5e5e5] hover:bg-[rgba(255,255,255,0.05)] rounded-lg transition text-left"
-          >
-            Disconnect
-          </button>
         </div>
       </aside>
 

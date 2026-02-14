@@ -15,8 +15,23 @@ export default function ContactPage() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
 
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  const validate = () => {
+    const errors: Record<string, string> = {};
+    if (!form.name.trim()) errors.name = "Please enter your name.";
+    if (!form.email.trim()) errors.email = "Please enter your email.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errors.email = "Please enter a valid email address.";
+    if (!form.subject) errors.subject = "Please select a topic.";
+    if (!form.message.trim()) errors.message = "Please enter a message.";
+    return errors;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const errors = validate();
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) return;
     setStatus("loading");
 
     try {
@@ -78,25 +93,25 @@ export default function ContactPage() {
                   </label>
                   <input
                     type="text"
-                    required
                     value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    className="input"
+                    onChange={(e) => { setForm({ ...form, name: e.target.value }); setFieldErrors((p) => ({ ...p, name: "" })); }}
+                    className={`input ${fieldErrors.name ? "!border-red-500/50" : ""}`}
                     placeholder="Your name"
                   />
+                  {fieldErrors.name && <p className="text-red-400 text-xs mt-1">{fieldErrors.name}</p>}
                 </div>
                 <div>
                   <label className="block text-sm text-[#888] mb-2">
                     Email *
                   </label>
                   <input
-                    type="email"
-                    required
+                    type="text"
                     value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className="input"
+                    onChange={(e) => { setForm({ ...form, email: e.target.value }); setFieldErrors((p) => ({ ...p, email: "" })); }}
+                    className={`input ${fieldErrors.email ? "!border-red-500/50" : ""}`}
                     placeholder="you@example.com"
                   />
+                  {fieldErrors.email && <p className="text-red-400 text-xs mt-1">{fieldErrors.email}</p>}
                 </div>
               </div>
 
@@ -105,10 +120,9 @@ export default function ContactPage() {
                   Subject *
                 </label>
                 <select
-                  required
                   value={form.subject}
-                  onChange={(e) => setForm({ ...form, subject: e.target.value })}
-                  className="input"
+                  onChange={(e) => { setForm({ ...form, subject: e.target.value }); setFieldErrors((p) => ({ ...p, subject: "" })); }}
+                  className={`input ${fieldErrors.subject ? "!border-red-500/50" : ""}`}
                 >
                   <option value="">Select a topic</option>
                   <option value="general">General Inquiry</option>
@@ -118,6 +132,7 @@ export default function ContactPage() {
                   <option value="bug">Bug Report</option>
                   <option value="other">Other</option>
                 </select>
+                {fieldErrors.subject && <p className="text-red-400 text-xs mt-1">{fieldErrors.subject}</p>}
               </div>
 
               <div>
@@ -125,12 +140,12 @@ export default function ContactPage() {
                   Message *
                 </label>
                 <textarea
-                  required
                   value={form.message}
-                  onChange={(e) => setForm({ ...form, message: e.target.value })}
-                  className="input min-h-[150px] resize-y"
+                  onChange={(e) => { setForm({ ...form, message: e.target.value }); setFieldErrors((p) => ({ ...p, message: "" })); }}
+                  className={`input min-h-[150px] resize-y ${fieldErrors.message ? "!border-red-500/50" : ""}`}
                   placeholder="Tell us more..."
                 />
+                {fieldErrors.message && <p className="text-red-400 text-xs mt-1">{fieldErrors.message}</p>}
               </div>
 
               {status === "error" && (
@@ -156,7 +171,7 @@ export default function ContactPage() {
                 target="_blank"
                 className="text-[#d4af37] hover:underline"
               >
-                Twitter @ibwtai
+                Twitter
               </Link>
               <Link
                 href="https://t.me/+Rz18rco54585MmUx"

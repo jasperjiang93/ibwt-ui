@@ -10,7 +10,7 @@
     {
       "name": "approve",
       "docs": [
-        "User approves result — 100% payment to agent"
+        "User approves result — 100% payment to agent, close escrow"
       ],
       "discriminator": [
         69,
@@ -25,6 +25,7 @@
       "accounts": [
         {
           "name": "user",
+          "writable": true,
           "signer": true
         },
         {
@@ -49,7 +50,7 @@
     {
       "name": "auto_release",
       "docs": [
-        "Auto-release after 48h with no response — 100% to agent"
+        "Auto-release after 48h with no response — 100% to agent, close escrow"
       ],
       "discriminator": [
         212,
@@ -62,6 +63,13 @@
         31
       ],
       "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "relations": [
+            "escrow"
+          ]
+        },
         {
           "name": "escrow",
           "writable": true
@@ -82,9 +90,49 @@
       "args": []
     },
     {
+      "name": "cancel",
+      "docs": [
+        "User cancels after agent misses deadline — 100% refund, close escrow"
+      ],
+      "discriminator": [
+        232,
+        219,
+        223,
+        41,
+        219,
+        236,
+        220,
+        190
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "escrow",
+          "writable": true
+        },
+        {
+          "name": "escrow_token_account",
+          "writable": true
+        },
+        {
+          "name": "user_token_account",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "decline",
       "docs": [
-        "User declines result — 100% refund to user"
+        "User declines result — 100% refund to user, close escrow"
       ],
       "discriminator": [
         24,
@@ -99,6 +147,7 @@
       "accounts": [
         {
           "name": "user",
+          "writable": true,
           "signer": true
         },
         {
@@ -200,6 +249,10 @@
         {
           "name": "amount",
           "type": "u64"
+        },
+        {
+          "name": "deadline",
+          "type": "i64"
         }
       ]
     },
@@ -274,6 +327,19 @@
       ]
     },
     {
+      "name": "TaskCancelled",
+      "discriminator": [
+        158,
+        101,
+        220,
+        187,
+        16,
+        141,
+        141,
+        64
+      ]
+    },
+    {
       "name": "TaskCompleted",
       "discriminator": [
         132,
@@ -333,6 +399,16 @@
       "code": 6003,
       "name": "ReviewPeriodNotOver",
       "msg": "Review period has not ended yet"
+    },
+    {
+      "code": 6004,
+      "name": "InvalidDeadline",
+      "msg": "Deadline must be in the future"
+    },
+    {
+      "code": 6005,
+      "name": "DeadlineNotReached",
+      "msg": "Agent deadline has not been reached yet"
     }
   ],
   "types": [
@@ -365,6 +441,10 @@
           {
             "name": "amount",
             "type": "u64"
+          },
+          {
+            "name": "deadline",
+            "type": "i64"
           },
           {
             "name": "review_deadline",
@@ -412,6 +492,23 @@
     },
     {
       "name": "TaskAutoReleased",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "task_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "TaskCancelled",
       "type": {
         "kind": "struct",
         "fields": [
@@ -506,6 +603,9 @@
           },
           {
             "name": "Refunded"
+          },
+          {
+            "name": "Cancelled"
           }
         ]
       }

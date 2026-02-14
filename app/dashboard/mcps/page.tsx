@@ -1,62 +1,94 @@
 "use client";
 
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import { ibwtToUsd } from "@/lib/format";
 
-// Mock data
-const mockMCPs = [
-  {
-    id: "1",
-    name: "PDF Reader",
-    description: "Extract text and images from PDF files",
-    pricePerCall: 50,
-    status: "active",
-  },
-  {
-    id: "2",
-    name: "Web Scraper",
-    description: "Scrape and parse web pages",
-    pricePerCall: 100,
-    status: "active",
-  },
-  {
-    id: "3",
-    name: "Image Generator",
-    description: "Generate images using AI models",
-    pricePerCall: 500,
-    status: "active",
-  },
-];
+interface MCPData {
+  id: string;
+  name: string;
+  description: string | null;
+  pricePerCall: number;
+  status: string;
+  earned: number;
+  totalCalls: number;
+}
 
 export default function MCPsPage() {
+  const { data, isLoading } = useQuery({
+    queryKey: ["dashboard-mcps"],
+    queryFn: async () => {
+      const res = await fetch(`/api/dashboard/mcps`);
+      if (!res.ok) throw new Error("Failed to fetch tools");
+      return res.json() as Promise<{ mcps: MCPData[] }>;
+    },
+  });
+
+  const mcps = data?.mcps || [];
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">MCP Tools</h1>
+        <h1 className="text-2xl font-bold">MCPs</h1>
         <Link
-          href="/mcps"
+          href="/dashboard/mcps/register"
           className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
         >
-          Browse Tools
+          + Register MCP
         </Link>
       </div>
 
-      {/* MCP Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {mockMCPs.map((mcp) => (
-          <div
-            key={mcp.id}
-            className="p-4 border border-gray-800 rounded-xl hover:border-purple-600/50 transition cursor-pointer"
-          >
-            <div className="flex items-start justify-between mb-3">
-              <h3 className="font-semibold">{mcp.name}</h3>
-              <span className="text-purple-400 text-sm">
-                {mcp.pricePerCall} $IBWT/call
-              </span>
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="p-4 border border-gray-800 rounded-xl animate-pulse">
+              <div className="h-5 bg-gray-800 rounded w-1/3 mb-3" />
+              <div className="h-4 bg-gray-800 rounded w-2/3 mb-4" />
+              <div className="h-4 bg-gray-800 rounded w-1/2" />
             </div>
-            <p className="text-gray-500 text-sm">{mcp.description}</p>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : mcps.length === 0 ? (
+        <div className="text-center py-16 border border-gray-800 rounded-xl">
+          <p className="text-[#888] mb-2">No tools registered yet</p>
+          <p className="text-sm text-[#666]">Register an MCP tool to start earning $IBWT</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {mcps.map((mcp) => (
+            <div
+              key={mcp.id}
+              className="p-4 border border-gray-800 rounded-xl hover:border-purple-600/50 transition cursor-pointer"
+            >
+              <div className="flex items-start justify-between mb-3">
+                <h3 className="font-semibold">{mcp.name}</h3>
+                <div className="text-right">
+                  <span className="text-purple-400 text-sm">
+                    {mcp.pricePerCall} $IBWT/call
+                  </span>
+                  <div className="text-[#999] text-xs">
+                    ≈ {ibwtToUsd(mcp.pricePerCall)}
+                  </div>
+                </div>
+              </div>
+              <p className="text-gray-500 text-sm mb-3">{mcp.description}</p>
+              <div className="pt-3 border-t border-gray-800 flex items-center justify-between">
+                <div className="text-sm text-[#888]">
+                  {mcp.totalCalls.toLocaleString()} calls
+                </div>
+                <div className="text-right">
+                  <span className="text-[#d4af37] font-semibold">
+                    {mcp.earned.toLocaleString()} $IBWT
+                  </span>
+                  <div className="text-[#999] text-xs">
+                    ≈ {ibwtToUsd(mcp.earned)}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
