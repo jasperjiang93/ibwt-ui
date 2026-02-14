@@ -5,10 +5,10 @@ import { Footer } from "@/components/footer";
 export const metadata: Metadata = {
   title: "Roadmap",
   description:
-    "IBWT Platform Roadmap — Building the marketplace layer for AI tools",
+    "IBWT Roadmap — Building the execution layer for the AI agent economy",
   keywords: [
     "IBWT roadmap",
-    "AI marketplace roadmap",
+    "AI execution layer",
     "bot economy",
     "MCP tools",
     "Solana AI",
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Roadmap",
     description:
-      "IBWT Platform Roadmap — Building the marketplace layer for AI tools",
+      "IBWT Roadmap — Building the execution layer for the AI agent economy",
     url: "https://www.inbotwetrust.com/roadmap",
     siteName: "IBWT",
     images: [
@@ -31,14 +31,15 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Roadmap",
     description:
-      "IBWT Platform Roadmap — Building the marketplace layer for AI tools",
+      "IBWT Roadmap — Building the execution layer for the AI agent economy",
     images: ["https://www.inbotwetrust.com/og-image.png"],
   },
 };
 
 const phases = [
   {
-    name: "Phase 1: Foundation",
+    name: "Phase 1 — Foundation",
+    constraint: "Make the idea legible",
     status: "current" as const,
     items: [
       { done: true, text: "Token launch" },
@@ -47,7 +48,8 @@ const phases = [
     ],
   },
   {
-    name: "Phase 2: Product Launch",
+    name: "Phase 2 — Network Activation",
+    constraint: "First AI tasks executed through IBWT.",
     status: "upcoming" as const,
     items: [
       { done: false, text: "Marketplace MVP with wallet auth" },
@@ -56,7 +58,8 @@ const phases = [
     ],
   },
   {
-    name: "Phase 3: Trust & Quality",
+    name: "Phase 3 — Trust",
+    constraint: "Make outcomes reliable",
     status: "upcoming" as const,
     items: [
       { done: false, text: "Reputation & rating system" },
@@ -65,7 +68,8 @@ const phases = [
     ],
   },
   {
-    name: "Phase 4: Growth",
+    name: "Phase 4 — Developer Expansion",
+    constraint: "Make builders extend the network",
     status: "upcoming" as const,
     items: [
       { done: false, text: "Provider SDK & developer tools" },
@@ -74,7 +78,8 @@ const phases = [
     ],
   },
   {
-    name: "Phase 5: Scale",
+    name: "Phase 5 — Scale",
+    constraint: "Make the network infrastructure-grade",
     status: "upcoming" as const,
     items: [
       { done: false, text: "Community governance" },
@@ -90,11 +95,14 @@ export default function RoadmapPage() {
       <Nav />
       <main className="pt-24 pb-16 px-6">
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-4xl md:text-5xl font-bold text-gold-gradient mb-4">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gold-gradient mb-4">
             Roadmap
           </h1>
-          <p className="text-[#888] text-lg mb-12">
-            Building the marketplace layer for AI tools — one phase at a time.
+          <p className="text-[#888] text-lg mb-4">
+            Building the execution layer for the AI agent economy — one phase at a time.
+          </p>
+          <p className="text-[#e5e5e5] text-sm mb-12">
+            IBWT is early infrastructure. The first execution flows are already live.
           </p>
 
           <div className="relative">
@@ -113,13 +121,16 @@ export default function RoadmapPage() {
                     }`}
                   />
 
-                  <div className="flex items-baseline gap-3 mb-4">
-                    <h2 className="text-xl font-bold text-[#e5e5e5]">{phase.name}</h2>
-                    {phase.status === "current" && (
-                      <span className="text-xs px-2 py-0.5 bg-[rgba(212,175,55,0.2)] text-[#d4af37] rounded-full">
-                        Current
-                      </span>
-                    )}
+                  <div className="mb-4">
+                    <div className="flex items-baseline gap-3">
+                      <h2 className="text-xl font-bold text-[#e5e5e5]">{phase.name}</h2>
+                      {phase.status === "current" && (
+                        <span className="text-xs px-2 py-0.5 bg-[rgba(212,175,55,0.2)] text-[#d4af37] rounded-full">
+                          Current
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-[#d4af37] mt-1 italic">{phase.constraint}</p>
                   </div>
 
                   <ul className="space-y-2">

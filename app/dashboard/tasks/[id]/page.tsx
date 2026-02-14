@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { api, Task, Bid, TaskResult, ResultOutput } from "@/lib/api";
+import { ibwtToUsd } from "@/lib/format";
 import { TaskChat } from "@/components/task-chat";
 import { useState } from "react";
 
@@ -100,7 +101,7 @@ export default function TaskDetailPage() {
           <div className="text-2xl font-bold text-purple-400">
             {task.budgetIbwt} $IBWT
           </div>
-          <div className="text-gray-500 text-sm">Budget</div>
+          <div className="text-[#999] text-sm">≈ {ibwtToUsd(task.budgetIbwt)}</div>
         </div>
       </div>
 
@@ -216,6 +217,7 @@ function BidCard({
           <div className="text-2xl font-bold text-purple-400">
             {bid.total} $IBWT
           </div>
+          <div className="text-[#999] text-xs">≈ {ibwtToUsd(bid.total)}</div>
         </div>
       </div>
 
@@ -237,7 +239,7 @@ function BidCard({
           ))}
           <div className="border-t border-gray-700 pt-2 mt-2 flex justify-between font-semibold">
             <span>Total</span>
-            <span className="text-purple-400">{bid.total} $IBWT</span>
+            <span className="text-purple-400">{bid.total} $IBWT <span className="text-[#999] font-normal">≈ {ibwtToUsd(bid.total)}</span></span>
           </div>
         </div>
       </div>

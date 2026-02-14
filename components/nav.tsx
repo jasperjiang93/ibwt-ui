@@ -63,9 +63,7 @@ export function Nav() {
                 <DropdownLink href="/whitepaper">Whitepaper</DropdownLink>
                 <DropdownLink href="/roadmap">Roadmap</DropdownLink>
                 <DropdownLink href="/team">Team</DropdownLink>
-                <DropdownLink href="https://pump.fun/coin/Co4KTCKPdAnFhJWNUbPdCn3VFF5xSATaxXpPaGVepump" external>
-                  Buy $IBWT
-                </DropdownLink>
+                <DropdownLink href="/token">Token</DropdownLink>
               </div>
             )}
           </div>
@@ -124,15 +122,7 @@ export function Nav() {
               <MobileNavLink href="/whitepaper" active={isActive("/whitepaper")} onNavigate={() => setMobileOpen(false)}>Whitepaper</MobileNavLink>
               <MobileNavLink href="/roadmap" active={isActive("/roadmap")} onNavigate={() => setMobileOpen(false)}>Roadmap</MobileNavLink>
               <MobileNavLink href="/team" active={isActive("/team")} onNavigate={() => setMobileOpen(false)}>Team</MobileNavLink>
-              <a
-                href="https://pump.fun/coin/Co4KTCKPdAnFhJWNUbPdCn3VFF5xSATaxXpPaGVepump"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#888] hover:text-[#e5e5e5] transition font-medium"
-                onClick={() => setMobileOpen(false)}
-              >
-                Buy $IBWT
-              </a>
+              <MobileNavLink href="/token" active={isActive("/token")} onNavigate={() => setMobileOpen(false)}>Token</MobileNavLink>
             </div>
           </div>
         </div>

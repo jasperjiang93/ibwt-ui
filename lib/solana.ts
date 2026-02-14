@@ -8,14 +8,14 @@ export const SOLANA_RPC_URL =
 
 // Token addresses
 export const IBWT_TOKEN_MINT = new PublicKey(
-  process.env.NEXT_PUBLIC_IBWT_TOKEN_MINT || 
+  process.env.NEXT_PUBLIC_IBWT_TOKEN_MINT ||
   "Co4KTCKPdAnFhJWNUbPdCn3VFF5xSATaxXpPaGVepump"
 );
 
-// Escrow program (replace after deploy)
+// Escrow program
 export const ESCROW_PROGRAM_ID = new PublicKey(
-  process.env.NEXT_PUBLIC_ESCROW_PROGRAM_ID || 
-  "11111111111111111111111111111111"
+  process.env.NEXT_PUBLIC_ESCROW_PROGRAM_ID ||
+  "APXEbSj1hvyzL1gXh5QstKv47xLtU2CraVcsQjwtixfr"
 );
 
 // Connection singleton

@@ -21,7 +21,8 @@ model User {
 
 // ============ IBWT App Tables ============
 
-model MCP {
+model Mcp {
+  @@map("MCP")
   id              String   @id @default(cuid())
   name            String
   description     String?
@@ -133,6 +134,7 @@ model UploadedFile {
 model WaitlistEntry {
   id        String   @id @default(cuid())
   email     String   @unique
+  role      String   @default("user") // user, agent_provider, mcp_provider, other
   createdAt DateTime @default(now())
 }
 
