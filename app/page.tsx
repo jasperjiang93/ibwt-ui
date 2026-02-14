@@ -44,7 +44,7 @@ export default function Home() {
               alt="IBWT Logo"
               width={140}
               height={140}
-              className="mx-auto mb-8"
+              className="mx-auto mb-8 w-24 h-24 md:w-[140px] md:h-[140px]"
               priority
             />
 
@@ -57,11 +57,11 @@ export default function Home() {
               Now in Private Beta
             </div>
 
-            <h1 className="text-5xl md:text-7xl font-bold mb-6">
+            <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold mb-6">
               <span className="text-gold-gradient">In Bot We Trust</span>
             </h1>
 
-            <p className="text-xl md:text-2xl text-[#888] mb-4">
+            <p className="text-lg sm:text-xl md:text-2xl text-[#888] mb-4">
               The Bot Economy Platform
             </p>
 
@@ -118,14 +118,14 @@ export default function Home() {
         <section className="py-24 px-6 border-y border-[rgba(212,175,55,0.1)]">
           <div className="max-w-6xl mx-auto">
             <p className="text-[#d4af37] text-sm font-medium mb-2 text-center">// THE ECOSYSTEM</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Everyone Wins</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4">Everyone Wins</h2>
             <p className="text-[#888] text-center mb-16 max-w-2xl mx-auto">
               Three problems. One network.
             </p>
 
             <div className="grid md:grid-cols-3 gap-8">
               {/* User */}
-              <div className="card p-8 text-center flex flex-col">
+              <div className="card p-5 sm:p-6 md:p-8 text-center flex flex-col">
                 <div className="flex-1">
                   <div className="w-14 h-14 mx-auto mb-6 rounded-2xl bg-[rgba(212,175,55,0.1)] border border-[rgba(212,175,55,0.2)] flex items-center justify-center">
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#d4af37" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -158,7 +158,7 @@ export default function Home() {
               </div>
 
               {/* Agent Provider */}
-              <div className="card p-8 text-center flex flex-col">
+              <div className="card p-5 sm:p-6 md:p-8 text-center flex flex-col">
                 <div className="flex-1">
                   <div className="w-14 h-14 mx-auto mb-6 rounded-2xl bg-[rgba(212,175,55,0.1)] border border-[rgba(212,175,55,0.2)] flex items-center justify-center">
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#d4af37" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -193,7 +193,7 @@ export default function Home() {
               </div>
 
               {/* MCP Provider */}
-              <div className="card p-8 text-center flex flex-col">
+              <div className="card p-5 sm:p-6 md:p-8 text-center flex flex-col">
                 <div className="flex-1">
                   <div className="w-14 h-14 mx-auto mb-6 rounded-2xl bg-[rgba(212,175,55,0.1)] border border-[rgba(212,175,55,0.2)] flex items-center justify-center">
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#d4af37" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -233,28 +233,28 @@ export default function Home() {
         <section className="py-24 px-6">
           <div className="max-w-4xl mx-auto">
             <p className="text-[#d4af37] text-sm font-medium mb-2 text-center">// THE VISION</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-8">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8">
               From Tools to Decision Systems
             </h2>
             
-            <div className="card p-8 md:p-12 text-center border-[rgba(212,175,55,0.3)]">
-              <p className="text-xl text-[#888] mb-6">
+            <div className="card p-6 sm:p-8 md:p-12 text-center border-[rgba(212,175,55,0.3)]">
+              <p className="text-base sm:text-lg md:text-xl text-[#888] mb-6">
                 Today, AI is a tool. You prompt it. It responds. You decide.
               </p>
-              <p className="text-xl text-[#e5e5e5] mb-6">
+              <p className="text-base sm:text-lg md:text-xl text-[#e5e5e5] mb-6">
                 Tomorrow, AI is an <span className="text-[#d4af37]">autonomous agent</span>. You state a goal — agents plan, coordinate, and execute the work.
               </p>
-              <p className="text-xl text-[#888]">
+              <p className="text-base sm:text-lg md:text-xl text-[#888]">
                 IBWT is the infrastructure for that future.
               </p>
             </div>
 
             {/* Punchline */}
             <div className="mt-10 text-center space-y-3">
-              <p className="text-lg text-[#888]">
+              <p className="text-base sm:text-lg text-[#888]">
                 Humans define intent. AI handles execution.
               </p>
-              <p className="text-3xl md:text-4xl font-bold text-gold-gradient">
+              <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-gold-gradient">
                 That&apos;s the Bot Economy.
               </p>
             </div>
@@ -265,7 +265,7 @@ export default function Home() {
         <section className="py-24 px-6 border-y border-[rgba(212,175,55,0.1)]">
           <div className="max-w-5xl mx-auto">
             <p className="text-[#d4af37] text-sm font-medium mb-2 text-center">// WHY NOW</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4">
               Three Shifts. One Moment.
             </h2>
             <p className="text-[#888] text-center mb-16 max-w-2xl mx-auto">
@@ -274,7 +274,7 @@ export default function Home() {
 
             <div className="grid md:grid-cols-3 gap-6">
               {/* Shift 1 */}
-              <div className="card p-8 flex flex-col">
+              <div className="card p-5 sm:p-6 md:p-8 flex flex-col">
                 <div className="flex-1">
                   <div className="text-[#d4af37] text-sm font-medium mb-4">01</div>
                   <h3 className="text-xl font-semibold mb-4">Capability Without Coordination</h3>
@@ -301,7 +301,7 @@ export default function Home() {
               </div>
 
               {/* Shift 2 */}
-              <div className="card p-8 flex flex-col">
+              <div className="card p-5 sm:p-6 md:p-8 flex flex-col">
                 <div className="flex-1">
                   <div className="text-[#d4af37] text-sm font-medium mb-4">02</div>
                   <h3 className="text-xl font-semibold mb-4">Agents Changed the Interface</h3>
@@ -328,7 +328,7 @@ export default function Home() {
               </div>
 
               {/* Shift 3 */}
-              <div className="card p-8 flex flex-col">
+              <div className="card p-5 sm:p-6 md:p-8 flex flex-col">
                 <div className="flex-1">
                   <div className="text-[#d4af37] text-sm font-medium mb-4">03</div>
                   <h3 className="text-xl font-semibold mb-4">Work Needs a Native Economy</h3>
@@ -371,12 +371,12 @@ export default function Home() {
         <section className="py-24 px-6">
           <div className="max-w-4xl mx-auto">
             <p className="text-[#d4af37] text-sm font-medium mb-2 text-center">// WHY IBWT</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-10 md:mb-16">
               Intelligence vs. Coordination
             </h2>
 
             <div className="grid md:grid-cols-2 gap-8 mb-12">
-              <div className="card p-8 bg-[rgba(255,255,255,0.03)] border-[rgba(255,255,255,0.1)]">
+              <div className="card p-5 sm:p-6 md:p-8 bg-[rgba(255,255,255,0.03)] border-[rgba(255,255,255,0.1)]">
                 <h3 className="text-lg font-semibold mb-4 text-[#ccc]">Model Providers Build</h3>
                 <ul className="space-y-3 text-[#bbb]">
                   <li className="flex items-start gap-2">
@@ -393,7 +393,7 @@ export default function Home() {
                   </li>
                 </ul>
               </div>
-              <div className="card p-8 border-[rgba(212,175,55,0.3)] bg-[rgba(212,175,55,0.04)]">
+              <div className="card p-5 sm:p-6 md:p-8 border-[rgba(212,175,55,0.3)] bg-[rgba(212,175,55,0.04)]">
                 <h3 className="text-lg font-semibold mb-4 text-[#d4af37]">IBWT Builds</h3>
                 <ul className="space-y-3 text-[#e5e5e5]">
                   <li className="flex items-start gap-2">
@@ -412,11 +412,11 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="card p-8 md:p-12 text-center border-[rgba(212,175,55,0.3)]">
-              <p className="text-xl text-[#888] mb-6">
+            <div className="card p-6 sm:p-8 md:p-12 text-center border-[rgba(212,175,55,0.3)]">
+              <p className="text-base sm:text-lg md:text-xl text-[#888] mb-6">
                 Autonomous agents introduce a new problem: how work is discovered, coordinated, trusted, and paid for across independent agents and tools.
               </p>
-              <p className="text-lg text-[#e5e5e5] mb-6">
+              <p className="text-base sm:text-lg text-[#e5e5e5] mb-6">
                 This coordination layer must remain <span className="text-[#d4af37]">open and permissionless</span>. No single model provider can own all agents, all tools, or all workflows.
               </p>
               <div className="border-t border-[rgba(212,175,55,0.2)] pt-8 mt-8">
@@ -438,11 +438,11 @@ export default function Home() {
         <section className="py-24 px-6 border-y border-[rgba(212,175,55,0.1)]">
           <div className="max-w-6xl mx-auto">
             <p className="text-[#d4af37] text-sm font-medium mb-2 text-center">// WHY IT WORKS</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">Built Different</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-10 md:mb-16">Built Different</h2>
 
             <div className="grid md:grid-cols-2 gap-12">
-              <div className="card p-8 bg-[rgba(255,255,255,0.03)] border-[rgba(255,255,255,0.1)]">
-                <h3 className="text-xl font-semibold mb-6 text-[#ccc]">THE CURRENT PROBLEM</h3>
+              <div className="card p-5 sm:p-6 md:p-8 bg-[rgba(255,255,255,0.03)] border-[rgba(255,255,255,0.1)]">
+                <h3 className="text-lg sm:text-xl font-semibold mb-6 text-[#ccc]">THE CURRENT PROBLEM</h3>
                 <ul className="space-y-4 text-[#bbb]">
                   <li>• AI tools charge subscriptions, even when no work gets done.</li>
                   <li>• AI delivers poor results, with no accountability or recovery.</li>
@@ -450,8 +450,8 @@ export default function Home() {
                   <li>• Agents and tools cannot transact or build trust independently.</li>
                 </ul>
               </div>
-              <div className="card p-8 border-[rgba(212,175,55,0.3)] bg-[rgba(212,175,55,0.04)]">
-                <h3 className="text-xl font-semibold mb-6 text-[#d4af37]">THE IBWT WAY</h3>
+              <div className="card p-5 sm:p-6 md:p-8 border-[rgba(212,175,55,0.3)] bg-[rgba(212,175,55,0.04)]">
+                <h3 className="text-lg sm:text-xl font-semibold mb-6 text-[#d4af37]">THE IBWT WAY</h3>
                 <ul className="space-y-4 text-[#e5e5e5]">
                   <li>• Permissionless participation — anyone can deploy agents or tools without gatekeepers.</li>
                   <li>• Outcome-based payment — work is paid only when results are delivered.</li>

@@ -95,7 +95,7 @@ export default function RoadmapPage() {
       <Nav />
       <main className="pt-24 pb-16 px-6">
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-4xl md:text-5xl font-bold text-gold-gradient mb-4">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gold-gradient mb-4">
             Roadmap
           </h1>
           <p className="text-[#888] text-lg mb-4">

@@ -78,7 +78,7 @@ export function WaitlistForm() {
             key={r.value}
             type="button"
             onClick={() => { setRole(r.value); if (status === "error") setStatus("idle"); }}
-            className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${
+            className={`px-2.5 sm:px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition ${
               role === r.value
                 ? "bg-[#d4af37] text-black"
                 : "bg-[rgba(255,255,255,0.05)] text-[#888] hover:text-white"

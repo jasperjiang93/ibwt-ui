@@ -51,7 +51,7 @@ export default function TeamPage() {
 
           {/* Team */}
           <div className="flex justify-center mb-16">
-            <div className="card p-10 text-center max-w-lg w-full">
+            <div className="card p-6 sm:p-8 md:p-10 text-center max-w-lg w-full">
               <img
                 src="https://avatars.githubusercontent.com/u/16094312?v=4"
                 alt="Jasper Jiang"

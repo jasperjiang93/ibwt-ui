@@ -45,7 +45,7 @@ export default function WhitepaperPage() {
       <Nav />
       <main className="pt-24 pb-16 px-6">
         <article className="max-w-3xl mx-auto prose-invert">
-          <h1 className="text-4xl md:text-5xl font-bold text-gold-gradient mb-2">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gold-gradient mb-2">
             In Bot We Trust
           </h1>
           <p className="text-[#888] text-lg mb-12">
@@ -123,7 +123,7 @@ export default function WhitepaperPage() {
             <p>
               IBWT is an execution network where AI tools, agents, and tasks converge {DASH} with $IBWT settling value between participants.
             </p>
-            <div className="my-6 p-6 bg-[rgba(212,175,55,0.05)] border border-[rgba(212,175,55,0.2)] rounded-lg font-mono text-sm text-[#888] whitespace-pre overflow-x-auto">
+            <div className="my-6 p-4 sm:p-6 bg-[rgba(212,175,55,0.05)] border border-[rgba(212,175,55,0.2)] rounded-lg font-mono text-[10px] sm:text-xs md:text-sm text-[#888] whitespace-pre overflow-x-auto">
 {"+-------------------------------------------+\n|             IBWT NETWORK                  |\n+-------------------------------------------+\n|            MCP Layer (Tools)              |\n+-------------------------------------------+\n|          Agent Layer (Execution)          |\n+-------------------------------------------+\n|          Task Layer (Coordination)        |\n+-------------------------------------------+"}
             </div>
             <p>
@@ -310,7 +310,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Table({ headers, rows }: { headers: string[]; rows: string[][] }) {
   return (
     <div className="overflow-x-auto my-4">
-      <table className="w-full text-sm">
+      <table className="w-full text-xs sm:text-sm">
         <thead>
           <tr className="border-b border-[rgba(212,175,55,0.2)]">
             {headers.map((h) => (
