@@ -133,6 +133,18 @@ export async function buildApproveTransaction({
   const agentAta = getAssociatedTokenAddressSync(IBWT_TOKEN_MINT, agent);
   const program = getProgram(connection, user);
 
+  // Check if agent ATA exists; if not, create it
+  const agentAtaInfo = await connection.getAccountInfo(agentAta);
+
+  const tx = new Transaction();
+
+  if (!agentAtaInfo) {
+    console.log('Creating agent ATA:', agentAta.toBase58());
+    tx.add(
+      createAssociatedTokenAccountInstruction(user, agentAta, agent, IBWT_TOKEN_MINT)
+    );
+  }
+
   const ix = await program.methods
     .approve()
     .accounts({
@@ -144,7 +156,7 @@ export async function buildApproveTransaction({
     })
     .instruction();
 
-  const tx = new Transaction().add(ix);
+  tx.add(ix);
   tx.feePayer = user;
   tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
   return tx;

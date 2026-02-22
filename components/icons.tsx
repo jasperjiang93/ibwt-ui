@@ -156,3 +156,23 @@ export function IconLock({ size, className }: { size?: number; className?: strin
     </Icon>
   );
 }
+
+// Chat
+export function IconSend({ size, className }: { size?: number; className?: string }) {
+  return (
+    <Icon size={size} className={className}>
+      <line x1="22" y1="2" x2="11" y2="13" />
+      <polygon points="22 2 15 22 11 13 2 9 22 2" />
+    </Icon>
+  );
+}
+
+export function IconSparkles({ size, className }: { size?: number; className?: string }) {
+  return (
+    <Icon size={size} className={className}>
+      <path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z" />
+      <path d="M19 12l0.75 2.25L22 15l-2.25 0.75L19 18l-0.75-2.25L16 15l2.25-0.75L19 12z" />
+      <path d="M5 19l0.75 2.25L8 22l-2.25 0.75L5 25l-0.75-2.25L2 22l2.25-0.75L5 19z" />
+    </Icon>
+  );
+}

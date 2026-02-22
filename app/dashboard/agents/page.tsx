@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useWallet } from "@solana/wallet-adapter-react";
 import { useQuery } from "@tanstack/react-query";
 import { ibwtToUsd } from "@/lib/format";
 
@@ -17,13 +18,17 @@ interface AgentData {
 }
 
 export default function AgentsPage() {
+  const { publicKey } = useWallet();
+
   const { data, isLoading } = useQuery({
-    queryKey: ["dashboard-agents"],
+    queryKey: ["dashboard-agents", publicKey?.toBase58()],
     queryFn: async () => {
-      const res = await fetch(`/api/dashboard/agents`);
+      if (!publicKey) return { agents: [] };
+      const res = await fetch(`/api/dashboard/agents?wallet=${publicKey.toBase58()}`);
       if (!res.ok) throw new Error("Failed to fetch agents");
       return res.json() as Promise<{ agents: AgentData[] }>;
     },
+    enabled: !!publicKey,
   });
 
   const agents = data?.agents || [];

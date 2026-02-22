@@ -1,56 +1,81 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+/**
+ * GET /api/dashboard/mcps
+ * Get merchant's MCP servers
+ */
 
-interface MCPPlanEntry {
-  mcp_id: string;
-  mcp_name: string;
-  calls: number;
-  price_per_call: number;
-  subtotal: number;
-}
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
-export async function GET(req: NextRequest) {
-  const wallet = req.nextUrl.searchParams.get("wallet");
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const wallet = searchParams.get('wallet');
 
-  const where = wallet ? { providerAddress: wallet } : {};
-
-  const mcps = await prisma.mcp.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-  });
-
-  // Get all accepted bids for completed tasks to compute MCP earnings
-  const completedBids = await prisma.bid.findMany({
-    where: {
-      status: "accepted",
-      acceptedForTask: { status: "completed" },
-    },
-    select: { mcpPlan: true },
-  });
-
-  // Aggregate earnings per MCP
-  const mcpStats: Record<string, { earned: number; totalCalls: number }> = {};
-  for (const bid of completedBids) {
-    const plan = bid.mcpPlan as MCPPlanEntry[] | null;
-    if (!plan) continue;
-    for (const entry of plan) {
-      if (!mcpStats[entry.mcp_id]) mcpStats[entry.mcp_id] = { earned: 0, totalCalls: 0 };
-      mcpStats[entry.mcp_id].earned += entry.subtotal;
-      mcpStats[entry.mcp_id].totalCalls += entry.calls;
+    if (!wallet) {
+      return NextResponse.json(
+        { error: 'Wallet address required' },
+        { status: 400 }
+      );
     }
+
+    // Find merchant by wallet
+    const merchant = await prisma.merchant.findUnique({
+      where: { walletAddress: wallet },
+    });
+
+    if (!merchant) {
+      return NextResponse.json({ mcps: [] });
+    }
+
+    // Get merchant's MCP servers with stats
+    const mcpServers = await prisma.mcpServer.findMany({
+      where: { merchantId: merchant.id },
+      include: {
+        tools: {
+          select: {
+            id: true,
+            name: true,
+            pricingModel: true,
+            priceUsd: true,
+            totalCalls: true,
+            totalRevenue: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    // Transform for dashboard
+    const mcps = mcpServers.map((server) => {
+      const totalToolCalls = server.tools.reduce((sum, t) => sum + t.totalCalls, 0);
+      const totalToolRevenue = server.tools.reduce((sum, t) => sum + Number(t.totalRevenue), 0);
+      
+      return {
+        id: server.id,
+        name: server.name,
+        description: server.description,
+        status: server.status,
+        toolCount: server.tools.length,
+        totalCalls: server.totalCalls + totalToolCalls,
+        earned: Number(server.totalRevenue) + totalToolRevenue,
+        tools: server.tools.map((tool) => ({
+          id: tool.id,
+          name: tool.name,
+          pricingModel: tool.pricingModel,
+          priceUsd: tool.priceUsd ? Number(tool.priceUsd) : null,
+          totalCalls: tool.totalCalls,
+          totalRevenue: Number(tool.totalRevenue),
+        })),
+        createdAt: server.createdAt.toISOString(),
+      };
+    });
+
+    return NextResponse.json({ mcps });
+  } catch (error) {
+    console.error('Error fetching dashboard MCPs:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch MCPs' },
+      { status: 500 }
+    );
   }
-
-  const result = mcps.map((mcp) => ({
-    id: mcp.id,
-    name: mcp.name,
-    description: mcp.description,
-    providerAddress: mcp.providerAddress,
-    endpoint: mcp.endpoint,
-    pricePerCall: mcp.pricePerCall,
-    status: mcp.status,
-    earned: mcpStats[mcp.id]?.earned || 0,
-    totalCalls: mcpStats[mcp.id]?.totalCalls || 0,
-  }));
-
-  return NextResponse.json({ mcps: result });
 }

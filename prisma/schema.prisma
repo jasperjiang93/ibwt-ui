@@ -70,7 +70,9 @@ model Task {
   status         String    @default("open")
   acceptedBidId  String?   @unique
   acceptedBid    Bid?      @relation("AcceptedBid", fields: [acceptedBidId], references: [id])
-  escrowTxId     String?   // Solana transaction ID
+  escrowTxId     String?   // Solana lock_funds transaction ID
+  approveTxId    String?   // Solana approve transaction ID
+  declineTxId    String?   // Solana decline transaction ID
   reviewDeadline DateTime?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
@@ -136,6 +138,116 @@ model WaitlistEntry {
   email     String   @unique
   role      String   @default("user") // user, agent_provider, mcp_provider, other
   createdAt DateTime @default(now())
+}
+
+// ============ Payment System Tables ============
+
+model Merchant {
+  id            String    @id @default(cuid())
+  walletAddress String    @unique
+  name          String?
+  apiKey        String    @unique @default(cuid())
+  apiSecret     String    @default(cuid())
+  webhookUrl    String?
+  webhookSecret String?
+  status        String    @default("active") // active, suspended
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  payments      Payment[]
+  mcpServers    McpServer[]
+}
+
+model Payment {
+  id            String    @id @default(cuid())
+  merchantId    String
+  merchant      Merchant  @relation(fields: [merchantId], references: [id])
+  
+  // Amount info
+  amountUsd     Decimal   @db.Decimal(10, 4)
+  amountSol     Decimal?  @db.Decimal(18, 9)
+  amountUsdc    Decimal?  @db.Decimal(10, 4)
+  currency      String    // SOL, USDC
+  
+  // Status
+  status        String    @default("pending") // pending, confirmed, failed, expired
+  
+  // Solana Pay
+  solanaPayUrl  String?
+  recipientWallet String
+  
+  // Transaction info
+  txSignature   String?
+  confirmedAt   DateTime?
+  
+  // Metadata
+  description   String?
+  metadata      Json?
+  
+  // Expiry
+  expiresAt     DateTime
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([merchantId])
+  @@index([status])
+  @@index([txSignature])
+}
+
+model McpServer {
+  id              String    @id @default(cuid())
+  merchantId      String
+  merchant        Merchant  @relation(fields: [merchantId], references: [id])
+  
+  name            String
+  description     String?
+  endpointUrl     String?
+  documentationUrl String?
+  
+  // Default pricing (can be overridden per tool)
+  defaultPricingModel String @default("free") // free, per_call
+  defaultPriceUsd     Decimal? @db.Decimal(10, 4)
+  
+  status          String    @default("active") // active, inactive, pending
+  
+  // Stats
+  totalCalls      Int       @default(0)
+  totalRevenue    Decimal   @default(0) @db.Decimal(18, 4)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  tools           McpTool[]
+
+  @@index([merchantId])
+  @@index([status])
+}
+
+model McpTool {
+  id              String    @id @default(cuid())
+  serverId        String
+  server          McpServer @relation(fields: [serverId], references: [id], onDelete: Cascade)
+  
+  name            String
+  description     String?
+  inputSchema     Json?
+  outputSchema    Json?
+  
+  // Pricing
+  pricingModel    String    @default("free") // free, per_call, dynamic
+  priceUsd        Decimal?  @db.Decimal(10, 4)
+  dynamicConfig   Json?     // { basePrice, perTokenPrice, etc }
+  
+  // Stats
+  totalCalls      Int       @default(0)
+  totalRevenue    Decimal   @default(0) @db.Decimal(18, 4)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([serverId, name])
+  @@index([serverId])
 }
 
 model ContactMessage {

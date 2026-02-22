@@ -92,7 +92,7 @@
     {
       "name": "cancel",
       "docs": [
-        "User cancels after agent misses deadline — 100% refund, close escrow"
+        "User cancels after deadline — 100% refund, close escrow"
       ],
       "discriminator": [
         232,
@@ -255,33 +255,6 @@
           "type": "i64"
         }
       ]
-    },
-    {
-      "name": "submit_result",
-      "docs": [
-        "Agent submits result, starts 48h review period"
-      ],
-      "discriminator": [
-        240,
-        42,
-        89,
-        180,
-        10,
-        239,
-        9,
-        214
-      ],
-      "accounts": [
-        {
-          "name": "agent",
-          "signer": true
-        },
-        {
-          "name": "escrow",
-          "writable": true
-        }
-      ],
-      "args": []
     }
   ],
   "accounts": [
@@ -300,19 +273,6 @@
     }
   ],
   "events": [
-    {
-      "name": "ResultSubmitted",
-      "discriminator": [
-        156,
-        153,
-        163,
-        89,
-        245,
-        144,
-        63,
-        94
-      ]
-    },
     {
       "name": "TaskAutoReleased",
       "discriminator": [
@@ -470,27 +430,6 @@
       }
     },
     {
-      "name": "ResultSubmitted",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "task_id",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
-          },
-          {
-            "name": "review_deadline",
-            "type": "i64"
-          }
-        ]
-      }
-    },
-    {
       "name": "TaskAutoReleased",
       "type": {
         "kind": "struct",
@@ -594,9 +533,6 @@
         "variants": [
           {
             "name": "Locked"
-          },
-          {
-            "name": "PendingReview"
           },
           {
             "name": "Completed"

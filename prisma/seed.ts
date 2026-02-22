@@ -22,32 +22,40 @@ interface McpRef { id: string; name: string; pricePerCall: number }
 function buildMcpPlan(
   type: "research" | "writer",
   total: number,
-  mcps: { scraper: McpRef; pdf: McpRef; imageGen: McpRef },
+  mcps: { scraper: McpRef; pdf: McpRef; gmail: McpRef },
 ) {
   if (type === "research") {
-    const scraperCalls = Math.max(1, Math.round(total * 0.35 / mcps.scraper.pricePerCall));
+    // Research tasks: scrape data, generate PDF report, send via email
+    const scraperCalls = Math.max(1, Math.round(total * 0.3 / mcps.scraper.pricePerCall));
     const scraperSub = scraperCalls * mcps.scraper.pricePerCall;
-    const pdfCalls = Math.max(1, Math.round(total * 0.15 / mcps.pdf.pricePerCall));
+    const pdfCalls = Math.max(1, Math.round(total * 0.25 / mcps.pdf.pricePerCall));
     const pdfSub = pdfCalls * mcps.pdf.pricePerCall;
-    const agentFee = total - scraperSub - pdfSub;
+    const gmailCalls = 1; // One email to send the report
+    const gmailSub = gmailCalls * mcps.gmail.pricePerCall;
+    const agentFee = total - scraperSub - pdfSub - gmailSub;
     return {
       agentFee,
       plan: [
         { mcp_id: mcps.scraper.id, mcp_name: mcps.scraper.name, calls: scraperCalls, price_per_call: mcps.scraper.pricePerCall, subtotal: scraperSub },
         { mcp_id: mcps.pdf.id, mcp_name: mcps.pdf.name, calls: pdfCalls, price_per_call: mcps.pdf.pricePerCall, subtotal: pdfSub },
+        { mcp_id: mcps.gmail.id, mcp_name: mcps.gmail.name, calls: gmailCalls, price_per_call: mcps.gmail.pricePerCall, subtotal: gmailSub },
       ],
     };
   } else {
-    const imgCalls = Math.max(1, Math.round(total * 0.35 / mcps.imageGen.pricePerCall));
-    const imgSub = imgCalls * mcps.imageGen.pricePerCall;
+    // Writer tasks: research content, generate PDF, send via email
     const scraperCalls = Math.max(1, Math.round(total * 0.2 / mcps.scraper.pricePerCall));
     const scraperSub = scraperCalls * mcps.scraper.pricePerCall;
-    const agentFee = total - imgSub - scraperSub;
+    const pdfCalls = Math.max(1, Math.round(total * 0.3 / mcps.pdf.pricePerCall));
+    const pdfSub = pdfCalls * mcps.pdf.pricePerCall;
+    const gmailCalls = 1; // One email to send the content
+    const gmailSub = gmailCalls * mcps.gmail.pricePerCall;
+    const agentFee = total - scraperSub - pdfSub - gmailSub;
     return {
       agentFee,
       plan: [
-        { mcp_id: mcps.imageGen.id, mcp_name: mcps.imageGen.name, calls: imgCalls, price_per_call: mcps.imageGen.pricePerCall, subtotal: imgSub },
         { mcp_id: mcps.scraper.id, mcp_name: mcps.scraper.name, calls: scraperCalls, price_per_call: mcps.scraper.pricePerCall, subtotal: scraperSub },
+        { mcp_id: mcps.pdf.id, mcp_name: mcps.pdf.name, calls: pdfCalls, price_per_call: mcps.pdf.pricePerCall, subtotal: pdfSub },
+        { mcp_id: mcps.gmail.id, mcp_name: mcps.gmail.name, calls: gmailCalls, price_per_call: mcps.gmail.pricePerCall, subtotal: gmailSub },
       ],
     };
   }
@@ -96,28 +104,38 @@ async function main() {
   // ---- Users ----
   const alice = await prisma.user.create({
     data: {
-      walletAddress: "A1icEw4LLet111111111111111111111111111111111",
+      walletAddress: "2Fppdut2ybtpU72DtebkVekobW3uG6Z4By9g1BKLXRZp",
       role: "user",
     },
   });
 
   const bob = await prisma.user.create({
     data: {
-      walletAddress: "B0bWaLLet1111111111111111111111111111111111",
+      walletAddress: "BobTestWa11et1234567890ABCDEFGHIJKLMNOP",
       role: "user",
     },
   });
 
-  console.log(`  Users: ${alice.id} (alice), ${bob.id} (bob)`);
+  console.log(`  Users: alice=${alice.id}, bob=${bob.id}`);
 
   // ---- MCPs (tools provided by alice) ----
-  const mcpPdf = await prisma.mcp.create({
+  const mcpPdfConverter = await prisma.mcp.create({
     data: {
-      name: "PDF Reader",
-      description: "Extract text and images from PDF files",
+      name: "Markdown to PDF Converter",
+      description: "Convert markdown documents to professionally styled PDF files using pandoc",
       providerAddress: alice.walletAddress,
-      endpoint: "https://mcp.ibwt.io/pdf-reader",
-      pricePerCall: 50,
+      endpoint: "cli://pandoc",
+      pricePerCall: 200,
+    },
+  });
+
+  const mcpGmail = await prisma.mcp.create({
+    data: {
+      name: "Gmail Sender",
+      description: "Send emails with attachments via Gmail using gog CLI",
+      providerAddress: alice.walletAddress,
+      endpoint: "cli://gog",
+      pricePerCall: 150,
     },
   });
 
@@ -131,35 +149,28 @@ async function main() {
     },
   });
 
-  const mcpImageGen = await prisma.mcp.create({
-    data: {
-      name: "Image Generator",
-      description: "Generate images using AI models",
-      providerAddress: alice.walletAddress,
-      endpoint: "https://mcp.ibwt.io/image-gen",
-      pricePerCall: 500,
-    },
-  });
-
   const mcps = {
     scraper: { id: mcpScraper.id, name: "Web Scraper", pricePerCall: 100 },
-    pdf: { id: mcpPdf.id, name: "PDF Reader", pricePerCall: 50 },
-    imageGen: { id: mcpImageGen.id, name: "Image Generator", pricePerCall: 500 },
+    pdf: { id: mcpPdfConverter.id, name: "Markdown to PDF Converter", pricePerCall: 200 },
+    gmail: { id: mcpGmail.id, name: "Gmail Sender", pricePerCall: 150 },
   };
 
-  console.log(`  MCPs: ${mcpPdf.id}, ${mcpScraper.id}, ${mcpImageGen.id}`);
+  console.log(`  MCPs: ${mcpPdfConverter.id}, ${mcpGmail.id}, ${mcpScraper.id}`);
 
   // ---- Agents (owned by alice) ----
+  // Use fixed agent wallet address for all agents
+  const agentWalletAddress = "CqG2enYhFVySUJMs6ywwz2hc9K1BeNtFuE4e1oKhUYh7";
+
   const agentResearch = await prisma.agent.create({
     data: {
       name: "ResearchBot",
       description: "Specializes in web research and data analysis",
       ownerId: alice.id,
-      walletAddress: "ResearchB0tWa11et111111111111111111111111111",
+      walletAddress: agentWalletAddress,
       webhookUrl: "https://agents.ibwt.io/research-bot/webhook",
       webhookSecret: "whsec_research_bot_dev",
       capabilities: ["research", "analysis", "summarization"],
-      supportedMcps: [mcpPdf.id, mcpScraper.id],
+      supportedMcps: [mcpPdfConverter.id, mcpGmail.id, mcpScraper.id],
       status: "available",
       rating: 4.8,
       completedTasks: 0,
@@ -171,11 +182,11 @@ async function main() {
       name: "ContentWriter",
       description: "Creates high-quality written content and visuals",
       ownerId: alice.id,
-      walletAddress: "ContentWr1terWa11et11111111111111111111111",
+      walletAddress: agentWalletAddress,
       webhookUrl: "https://agents.ibwt.io/content-writer/webhook",
       webhookSecret: "whsec_content_writer_dev",
       capabilities: ["writing", "editing", "translation", "design"],
-      supportedMcps: [mcpImageGen.id, mcpScraper.id],
+      supportedMcps: [mcpPdfConverter.id, mcpGmail.id, mcpScraper.id],
       status: "busy",
       rating: 4.5,
       completedTasks: 0,
@@ -213,7 +224,7 @@ async function main() {
           userAddress: bob.walletAddress,
           request: tmpl.request,
           budgetIbwt: Math.round(tmpl.total * 1.2),
-          status: "completed",
+          status: "done",
           createdAt: date,
         },
       });
@@ -274,7 +285,7 @@ async function main() {
         userAddress: alice.walletAddress,
         request: spec.request,
         budgetIbwt: Math.round(spec.total * 1.3),
-        status: "completed",
+        status: "done",
         createdAt: date,
       },
     });
@@ -343,8 +354,8 @@ async function main() {
         agentId: agentWriter.id,
         agentAddress: agentWriter.walletAddress,
         agentFee: Math.round(spec.budget * 0.4),
-        mcpPlan: [{ mcp_id: mcpPdf.id, mcp_name: "PDF Reader", calls: 10, price_per_call: 50, subtotal: 500 }],
-        total: Math.round(spec.budget * 0.4) + 500,
+        mcpPlan: [{ mcp_id: mcpPdfConverter.id, mcp_name: "Markdown to PDF Converter", calls: 2, price_per_call: 200, subtotal: 400 }],
+        total: Math.round(spec.budget * 0.4) + 400,
         etaMinutes: 120,
         message: "I can handle this efficiently",
         status: "pending",
@@ -389,7 +400,7 @@ async function main() {
         userAddress: bob.walletAddress,
         request: spec.request,
         budgetIbwt: spec.budget,
-        status: "in_progress",
+        status: "working",
         createdAt: hoursAgo(spec.hours),
       },
     });

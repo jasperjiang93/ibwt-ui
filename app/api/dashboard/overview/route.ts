@@ -22,49 +22,107 @@ function getSince(period: string): Date {
 
 export async function GET(req: NextRequest) {
   const period = req.nextUrl.searchParams.get("period") || "24h";
+  const wallet = req.nextUrl.searchParams.get("wallet");
   const since = getSince(period);
 
-  // Active tasks (global — not filtered by period)
+  if (!wallet) {
+    return NextResponse.json({ error: "Wallet address required" }, { status: 400 });
+  }
+
+  // Global stats (not filtered by period)
   const activeTasks = await prisma.task.count({
-    where: { status: { in: ["open", "in_progress"] } },
+    where: {
+      userAddress: wallet,
+      status: { in: ["open", "working"] }
+    },
+  });
+
+  const totalTasksCompleted = await prisma.task.count({
+    where: {
+      userAddress: wallet,
+      status: "done"
+    },
+  });
+
+  const totalAgents = await prisma.agent.count({
+    where: { owner: { walletAddress: wallet } }
+  });
+
+  const totalMCPs = await prisma.mcp.count({
+    where: { providerAddress: wallet }
   });
 
   // Completed tasks in period
   const completedTasks = await prisma.task.count({
-    where: { status: "completed", createdAt: { gte: since } },
+    where: {
+      userAddress: wallet,
+      status: "done",
+      createdAt: { gte: since }
+    },
   });
 
-  // Earnings in period: sum of accepted bids for completed tasks created in period
-  const completedBids = await prisma.bid.findMany({
+  // Spent in period: tasks created by this wallet
+  const userSpentBids = await prisma.bid.findMany({
     where: {
       status: "accepted",
       createdAt: { gte: since },
-      acceptedForTask: { status: "completed" },
+      acceptedForTask: {
+        status: "done",
+        userAddress: wallet
+      },
     },
-    select: { total: true, mcpPlan: true },
+    select: { total: true },
   });
-
-  const totalEarned = completedBids.reduce((sum, b) => sum + b.total, 0);
-
-  // Spent in period: only the first user's (alice's) tasks
-  const firstUser = await prisma.user.findFirst({ orderBy: { createdAt: "asc" } });
-  const userSpentBids = firstUser
-    ? await prisma.bid.findMany({
-        where: {
-          status: "accepted",
-          createdAt: { gte: since },
-          acceptedForTask: { status: "completed", userId: firstUser.id },
-        },
-        select: { total: true },
-      })
-    : [];
   const totalSpent = userSpentBids.reduce((sum, b) => sum + b.total, 0);
 
-  // ---- Build unified activity feed (filtered by period) ----
+  // Earnings in period: from agents and MCPs owned by this wallet
+  // 1. Agent earnings
+  const agentEarnings = await prisma.bid.findMany({
+    where: {
+      status: "accepted",
+      createdAt: { gte: since },
+      acceptedForTask: { status: "done" },
+      agent: { owner: { walletAddress: wallet } },
+    },
+    select: { agentFee: true },
+  });
+  const totalAgentEarned = agentEarnings.reduce((sum, b) => sum + (b.agentFee || 0), 0);
 
-  // 1. Task activities (spending)
+  // 2. MCP earnings
+  const mcpEarnings = await prisma.bid.findMany({
+    where: {
+      status: "accepted",
+      createdAt: { gte: since },
+      acceptedForTask: { status: "done" },
+    },
+    select: { mcpPlan: true },
+  });
+
+  let totalMcpEarned = 0;
+  for (const bid of mcpEarnings) {
+    const plan = bid.mcpPlan as MCPPlanEntry[] | null;
+    if (!plan) continue;
+    for (const entry of plan) {
+      // Check if this MCP belongs to the wallet
+      const mcp = await prisma.mcp.findFirst({
+        where: { id: entry.mcp_id, providerAddress: wallet }
+      });
+      if (mcp) {
+        totalMcpEarned += entry.subtotal;
+      }
+    }
+  }
+
+  const totalEarned = totalAgentEarned + totalMcpEarned;
+
+  // ---- Build unified activity feed (filtered by period and wallet) ----
+
+  // 1. Task activities (spending by this wallet)
   const recentTasks = await prisma.task.findMany({
-    where: { createdAt: { gte: since } },
+    where: {
+      userAddress: wallet,
+      createdAt: { gte: since }
+    },
     orderBy: { createdAt: "desc" },
     take: 15,
     select: {
@@ -86,12 +144,13 @@ export async function GET(req: NextRequest) {
     href: `/dashboard/tasks/${t.id}`,
   }));
 
-  // 2. Agent earnings (from completed bids in period)
+  // 2. Agent earnings (from this wallet's agents)
   const agentBids = await prisma.bid.findMany({
     where: {
       status: "accepted",
       createdAt: { gte: since },
-      acceptedForTask: { status: "completed" },
+      acceptedForTask: { status: "done" },
+      agent: { owner: { walletAddress: wallet } },
     },
     include: {
       agent: { select: { name: true } },
@@ -104,26 +163,44 @@ export async function GET(req: NextRequest) {
   const agentActivities = agentBids.map((b) => ({
     type: "agent" as const,
     label: `${b.agent.name} earned from: ${b.acceptedForTask?.request ?? "task"}`,
-    status: "completed",
-    amount: b.total,
+    status: "done",
+    amount: b.agentFee || 0,
     date: b.createdAt.toISOString(),
     href: `/dashboard/tasks/${b.acceptedForTask?.id}`,
   }));
 
-  // 3. MCP earnings (extracted from bid mcpPlans)
+  // 3. MCP earnings (from this wallet's MCPs)
+  const allCompletedBids = await prisma.bid.findMany({
+    where: {
+      status: "accepted",
+      createdAt: { gte: since },
+      acceptedForTask: { status: "done" },
+    },
+    select: { mcpPlan: true, createdAt: true },
+  });
+
+  const userMcps = await prisma.mcp.findMany({
+    where: { providerAddress: wallet },
+    select: { id: true, name: true }
+  });
+  const userMcpIds = new Set(userMcps.map(m => m.id));
+  const mcpNameMap = new Map(userMcps.map(m => [m.id, m.name]));
+
   const mcpActivities: Array<{ type: string; label: string; status: string; amount: number; date: string; href: string }> = [];
-  for (const bid of agentBids) {
+  for (const bid of allCompletedBids) {
     const plan = bid.mcpPlan as MCPPlanEntry[] | null;
     if (!plan) continue;
     for (const entry of plan) {
-      mcpActivities.push({
-        type: "mcp" as const,
-        label: `${entry.mcp_name} used (${entry.calls} calls)`,
-        status: "completed",
-        amount: entry.subtotal,
-        date: bid.createdAt.toISOString(),
-        href: `/dashboard/mcps`,
-      });
+      if (userMcpIds.has(entry.mcp_id)) {
+        mcpActivities.push({
+          type: "mcp" as const,
+          label: `${mcpNameMap.get(entry.mcp_id) || entry.mcp_name} used (${entry.calls} calls)`,
+          status: "done",
+          amount: entry.subtotal,
+          date: bid.createdAt.toISOString(),
+          href: `/dashboard/mcps`,
+        });
+      }
     }
   }
 
@@ -136,6 +213,9 @@ export async function GET(req: NextRequest) {
     period,
     stats: {
       activeTasks,
+      totalTasksCompleted,
+      totalAgents,
+      totalMCPs,
       completedTasks,
       totalSpent,
       totalEarned,

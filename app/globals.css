@@ -161,3 +161,14 @@ body {
 .animate-marquee {
   animation: marquee 20s linear infinite;
 }
+
+/* Hide Next.js dev error overlay (only in development) */
+nextjs-portal {
+  display: none !important;
+}
+
+/* Also hide React DevTools error boundary */
+[data-nextjs-dialog-overlay],
+[data-nextjs-toast] {
+  display: none !important;
+}

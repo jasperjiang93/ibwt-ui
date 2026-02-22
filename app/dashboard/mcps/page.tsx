@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useWallet } from "@solana/wallet-adapter-react";
 import { useQuery } from "@tanstack/react-query";
 import { ibwtToUsd } from "@/lib/format";
 
@@ -15,13 +16,17 @@ interface MCPData {
 }
 
 export default function MCPsPage() {
+  const { publicKey } = useWallet();
+
   const { data, isLoading } = useQuery({
-    queryKey: ["dashboard-mcps"],
+    queryKey: ["dashboard-mcps", publicKey?.toBase58()],
     queryFn: async () => {
-      const res = await fetch(`/api/dashboard/mcps`);
+      if (!publicKey) return { mcps: [] };
+      const res = await fetch(`/api/dashboard/mcps?wallet=${publicKey.toBase58()}`);
       if (!res.ok) throw new Error("Failed to fetch tools");
       return res.json() as Promise<{ mcps: MCPData[] }>;
     },
+    enabled: !!publicKey,
   });
 
   const mcps = data?.mcps || [];

@@ -33,13 +33,13 @@ export async function GET(req: NextRequest) {
   const result = agents.map((agent) => {
     // Compute earnings from completed tasks
     const earned = agent.bids
-      .filter((bid) => bid.acceptedForTask?.status === "completed")
+      .filter((bid) => bid.acceptedForTask?.status === "done")
       .reduce((sum, bid) => sum + bid.total, 0);
 
     // Compute MCP earnings breakdown
     const mcpEarnings: Record<string, { earned: number; calls: number }> = {};
     for (const bid of agent.bids) {
-      if (bid.acceptedForTask?.status !== "completed") continue;
+      if (bid.acceptedForTask?.status !== "done") continue;
       const plan = bid.mcpPlan as MCPPlanEntry[] | null;
       if (!plan) continue;
       for (const entry of plan) {
@@ -55,6 +55,7 @@ export async function GET(req: NextRequest) {
       description: agent.description,
       walletAddress: agent.walletAddress,
       capabilities: agent.capabilities,
+      supportedMcps: agent.supportedMcps,
       status: agent.status,
       rating: agent.rating,
       completedTasks: agent.completedTasks,

@@ -9,8 +9,11 @@ export const SOLANA_RPC_URL =
 // Token addresses
 export const IBWT_TOKEN_MINT = new PublicKey(
   process.env.NEXT_PUBLIC_IBWT_TOKEN_MINT ||
-  "Co4KTCKPdAnFhJWNUbPdCn3VFF5xSATaxXpPaGVepump"
+  "9rq5Nx45W9ku1bp31tctn7ynoTKQBaEDtzv6VQxfBd9B" // Actual IBWT token on devnet
 );
+
+// IBWT token decimals (standard for Solana SPL tokens)
+export const IBWT_DECIMALS = 9;
 
 // Escrow program
 export const ESCROW_PROGRAM_ID = new PublicKey(

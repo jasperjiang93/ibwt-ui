@@ -100,7 +100,11 @@ export default function DashboardLayout({
         </header>
 
         {/* Content */}
-        <main className="flex-1 p-6">{children}</main>
+        <main className="flex-1 px-6 py-6 overflow-x-auto">
+          <div className="max-w-[1400px] mx-auto min-w-0">
+            {children}
+          </div>
+        </main>
       </div>
     </div>
   );
