@@ -1,15 +1,27 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+const API_BASE =
+  process.env.NEXT_PUBLIC_GATEWAY_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://localhost:8080";
 
-class APIClient {
+class GatewayClient {
   private baseURL: string;
   private token: string | null = null;
+  private onUnauthorized: (() => void) | null = null;
 
   constructor(baseURL: string) {
     this.baseURL = baseURL;
   }
 
-  setToken(token: string) {
+  setToken(token: string | null) {
     this.token = token;
+  }
+
+  getToken() {
+    return this.token;
+  }
+
+  setOnUnauthorized(cb: (() => void) | null) {
+    this.onUnauthorized = cb;
   }
 
   private async request<T>(
@@ -32,204 +44,261 @@ class APIClient {
     });
 
     if (!res.ok) {
-      const error = await res.json().catch(() => ({ message: "Request failed" }));
-      throw new Error(error.message || `HTTP ${res.status}`);
+      if (res.status === 401 && this.token && this.onUnauthorized) {
+        this.onUnauthorized();
+      }
+      const error = await res
+        .json()
+        .catch(() => ({ message: "Request failed" }));
+      throw new Error(error.message || error.error || `HTTP ${res.status}`);
     }
 
     return res.json();
   }
 
+  // ============ Auth ============
+
+  async challenge(walletAddress: string) {
+    return this.request<ChallengeResponse>("POST", "/api/v1/auth/challenge", {
+      wallet_address: walletAddress,
+    });
+  }
+
+  async createKey(req: CreateKeyRequest) {
+    return this.request<CreateKeyResponse>("POST", "/api/v1/auth/keys", req);
+  }
+
+  async getKey() {
+    return this.request<{ api_key: APIKey }>("GET", "/api/v1/auth/keys");
+  }
+
+  async deleteKey() {
+    return this.request<void>("DELETE", "/api/v1/auth/keys");
+  }
+
   // ============ MCP ============
-  
+
   async listMCPs() {
-    return this.request<{ mcps: MCP[] }>("GET", "/api/v1/mcp");
+    return this.request<MCPListResponse>("GET", "/api/v1/mcp/list");
   }
 
   async getMCP(id: string) {
     return this.request<MCP>("GET", `/api/v1/mcp/${id}`);
   }
 
-  async createMCP(data: CreateMCPInput) {
-    return this.request<MCP>("POST", "/api/v1/mcp", data);
+  async discoverMCP(req: DiscoverMCPRequest) {
+    return this.request<DiscoverMCPResponse>(
+      "POST",
+      "/api/v1/mcp/discover",
+      req
+    );
   }
 
-  // ============ Agents ============
-  
-  async listAgents() {
-    return this.request<{ agents: Agent[] }>("GET", "/api/v1/agents");
+  async registerMCP(req: RegisterMCPRequest) {
+    return this.request<RegisterMCPResponse>(
+      "POST",
+      "/api/v1/mcp/register",
+      req
+    );
   }
 
-  async getAgent(id: string) {
-    return this.request<Agent>("GET", `/api/v1/agents/${id}`);
+  async updateMCP(id: string, req: UpdateMCPRequest) {
+    return this.request<{ success: boolean; message: string }>(
+      "PUT",
+      `/api/v1/mcp/${id}`,
+      req
+    );
   }
 
-  async createAgent(data: CreateAgentInput) {
-    return this.request<Agent>("POST", "/api/v1/agents", data);
+  async deleteMCP(id: string) {
+    return this.request<void>("DELETE", `/api/v1/mcp/${id}`);
   }
 
-  async updateAgentStatus(id: string, status: "available" | "unavailable") {
-    return this.request<Agent>("POST", `/api/v1/agents/${id}/status`, { status });
+  async refreshTools(id: string) {
+    return this.request<RefreshToolsResponse>(
+      "POST",
+      `/api/v1/mcp/${id}/refresh`
+    );
   }
 
-  // ============ Tasks ============
-  
-  async listTasks(filters?: TaskFilters) {
-    const params = new URLSearchParams();
-    if (filters?.status) params.set("status", filters.status);
-    if (filters?.userId) params.set("user_id", filters.userId);
-    const query = params.toString() ? `?${params}` : "";
-    return this.request<{ tasks: Task[] }>("GET", `/api/v1/tasks${query}`);
+  async getTools(id: string) {
+    return this.request<{ tools: MCPToolEntry[] }>(
+      "GET",
+      `/api/v1/mcp/${id}/tools`
+    );
   }
 
-  async getTask(id: string) {
-    return this.request<Task>("GET", `/api/v1/tasks/${id}`);
+  async updateToolPrice(
+    mcpId: string,
+    toolName: string,
+    pricePerCall: number
+  ) {
+    return this.request<{ success: boolean; message: string }>(
+      "PUT",
+      `/api/v1/mcp/${mcpId}/tools/${toolName}/price`,
+      { price_per_call: pricePerCall }
+    );
   }
 
-  async createTask(data: CreateTaskInput) {
-    return this.request<Task>("POST", "/api/v1/tasks", data);
+  // ============ Billing ============
+
+  async getBalance() {
+    return this.request<BalanceResponse>("GET", "/api/v1/billing/balance");
   }
 
-  async getTaskBids(taskId: string) {
-    return this.request<{ bids: Bid[] }>("GET", `/api/v1/tasks/${taskId}/bids`);
-  }
-
-  // ============ Bids ============
-  
-  async acceptBid(bidId: string) {
-    return this.request<Bid>("POST", `/api/v1/bids/${bidId}/accept`);
-  }
-
-  async rejectBid(bidId: string) {
-    return this.request<Bid>("POST", `/api/v1/bids/${bidId}/reject`);
-  }
-
-  // ============ Payments ============
-  
-  async preparePayment(taskId: string) {
-    return this.request<{ transaction: string }>("POST", `/api/v1/tasks/${taskId}/pay`);
-  }
-
-  async confirmPayment(taskId: string, txId: string) {
-    return this.request<Task>("POST", `/api/v1/tasks/${taskId}/confirm-payment`, { txId });
-  }
-
-  // ============ Results ============
-  
-  async approveResult(taskId: string) {
-    return this.request<Task>("POST", `/api/v1/tasks/${taskId}/approve`);
-  }
-
-  async requestRevision(taskId: string, feedback: string) {
-    return this.request<Task>("POST", `/api/v1/tasks/${taskId}/revision`, { feedback });
-  }
-
-  async disputeTask(taskId: string, reason: string) {
-    return this.request<Task>("POST", `/api/v1/tasks/${taskId}/dispute`, { reason });
+  async getHistory(limit = 50, offset = 0) {
+    return this.request<HistoryResponse>(
+      "GET",
+      `/api/v1/billing/history?limit=${limit}&offset=${offset}`
+    );
   }
 }
 
-export const api = new APIClient(API_BASE);
+export const gateway = new GatewayClient(API_BASE);
 
-// ============ Types ============
+// ============ Auth Types ============
+
+export interface ChallengeResponse {
+  nonce: string;
+  expires_at: string;
+}
+
+export interface CreateKeyRequest {
+  wallet_address: string;
+  signature: string;
+  nonce: string;
+}
+
+export interface CreateKeyResponse {
+  api_key: APIKey;
+}
+
+export interface APIKey {
+  owner_address: string;
+  key: string;
+  created_at: string;
+}
+
+// ============ MCP Types ============
 
 export interface MCP {
   id: string;
   name: string;
   description: string;
-  providerAddress: string;
   endpoint: string;
-  pricePerCall: number;
-  status: string;
-}
-
-export interface Agent {
-  id: string;
-  name: string;
-  description: string;
-  walletAddress: string;
-  capabilities: string[];
-  status: string;
-  rating: number;
-  completedTasks: number;
-}
-
-export interface Task {
-  id: string;
-  userId: string;
-  request: string;
-  requirements: Record<string, unknown>;
-  budgetIbwt: number;
-  deadline: string | null;
-  status: string;
-  acceptedBidId: string | null;
-  createdAt: string;
-}
-
-export interface Bid {
-  id: string;
-  taskId: string;
-  agentId: string;
-  agentAddress: string;
-  agent_fee: number;
-  mcp_plan: MCPQuota[];
-  total: number;
-  eta_minutes: number;
-  message: string;
+  mcp_endpoint: string;
+  sse_endpoint: string;
+  transport: string;
+  tags: string[];
+  num_tools: number;
+  owner_address: string;
+  payout_address: string;
+  currency: string;
   status: string;
   created_at: string;
-  agent?: Agent;
+  updated_at: string;
+  is_healthy: boolean;
+  last_check_at: string;
 }
 
-export interface MCPQuota {
-  mcp_id: string;
-  mcp_name: string;
-  calls: number;
-  price_per_call: number;
-  subtotal: number;
+export interface MCPListResponse {
+  tools: MCP[];
+  total: number;
 }
 
-export interface TaskResult {
+export interface MCPToolEntry {
   id: string;
-  task_id: string;
-  outputs: ResultOutput[];
-  revision_count: number;
-  submitted_at: string;
-}
-
-export interface ResultOutput {
-  type: "text" | "image" | "file" | "audio" | "video";
-  label: string;
-  content?: string;
-  url?: string;
-  filename?: string;
-  size?: number;
-  duration?: number;
-  mime_type?: string;
-}
-
-export interface CreateMCPInput {
-  name: string;
+  server_id: string;
+  tool_name: string;
   description: string;
+  input_schema?: Record<string, unknown>;
+  price_per_call: number;
+}
+
+export interface DiscoverMCPRequest {
   endpoint: string;
-  pricePerCall: number;
+  transport?: string;
+  upstream_headers?: Record<string, string>;
 }
 
-export interface CreateAgentInput {
+export interface DiscoverMCPResponse {
+  tools: DiscoveredTool[];
+}
+
+export interface DiscoveredTool {
   name: string;
   description: string;
-  walletAddress: string;
-  webhookUrl: string;
-  capabilities: string[];
+  input_schema?: Record<string, unknown>;
 }
 
-export interface CreateTaskInput {
-  request: string;
-  requirements?: Record<string, unknown>;
-  budgetIbwt: number;
-  deadline?: string;
+export interface ToolPricing {
+  name: string;
+  price_per_call: number;
 }
 
-export interface TaskFilters {
+export interface RegisterMCPRequest {
+  name: string;
+  endpoint: string;
+  owner_address: string;
+  description?: string;
+  mcp_endpoint?: string;
+  sse_endpoint?: string;
+  transport?: string;
+  tags?: string[];
+  payout_address?: string;
+  currency?: string;
+  upstream_headers?: Record<string, string>;
+  tools?: ToolPricing[];
+}
+
+export interface RegisterMCPResponse {
+  success: boolean;
+  message: string;
+  tool: MCP;
+}
+
+export interface UpdateMCPRequest {
+  name?: string;
+  description?: string;
+  endpoint?: string;
+  mcp_endpoint?: string;
+  sse_endpoint?: string;
+  transport?: string;
+  tags?: string[];
+  payout_address?: string;
+  currency?: string;
   status?: string;
-  userId?: string;
+  upstream_headers?: Record<string, string>;
+}
+
+export interface RefreshToolsResponse {
+  success: boolean;
+  num_tools: number;
+  tools: { name: string; description: string; inputSchema: Record<string, unknown> }[];
+}
+
+// ============ Billing Types ============
+
+export interface BalanceResponse {
+  owner_address: string;
+  credits: number;
+}
+
+export interface CallLog {
+  id: string;
+  gateway_type: string;
+  service_id: string;
+  tool_name: string;
+  caller_address: string;
+  owner_address: string;
+  credits_charged: number;
+  status: string;
+  duration_ms?: number;
+  error_message?: string;
+  created_at: string;
+}
+
+export interface HistoryResponse {
+  calls: CallLog[];
+  total: number;
 }

@@ -137,6 +137,16 @@ export function IconInbox({ size, className }: { size?: number; className?: stri
   );
 }
 
+// Developer
+export function IconCode({ size, className }: { size?: number; className?: string }) {
+  return (
+    <Icon size={size} className={className}>
+      <polyline points="16 18 22 12 16 6" />
+      <polyline points="8 6 2 12 8 18" />
+    </Icon>
+  );
+}
+
 // Auth
 export function IconWallet({ size, className }: { size?: number; className?: string }) {
   return (

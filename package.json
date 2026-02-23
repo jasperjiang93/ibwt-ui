@@ -9,16 +9,11 @@
     "lint": "eslint .",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
-    "db:seed": "prisma db seed",
     "db:studio": "prisma studio"
   },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
-  },
   "dependencies": {
-    "@coral-xyz/anchor": "^0.32.1",
     "@prisma/client": "^6.0.0",
-    "@solana/spl-token": "^0.4.14",
+    "bs58": "^5.0.0",
     "@solana/wallet-adapter-base": "^0.9.23",
     "@solana/wallet-adapter-react": "^0.15.35",
     "@solana/wallet-adapter-react-ui": "^0.9.35",
@@ -43,7 +38,6 @@
     "eslint-config-next": "15.1.0",
     "prisma": "^6.0.0",
     "tailwindcss": "^4.0.0",
-    "tsx": "^4.21.0",
     "typescript": "^5.7.0"
   }
 }
