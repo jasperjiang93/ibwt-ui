@@ -1,15 +1,25 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+const API_BASE =
+  process.env.NEXT_PUBLIC_GATEWAY_URL || "http://localhost:8080";
 
-class APIClient {
+class GatewayClient {
   private baseURL: string;
   private token: string | null = null;
+  private onUnauthorized: (() => void) | null = null;
 
   constructor(baseURL: string) {
     this.baseURL = baseURL;
   }
 
-  setToken(token: string) {
+  setToken(token: string | null) {
     this.token = token;
+  }
+
+  getToken() {
+    return this.token;
+  }
+
+  setOnUnauthorized(cb: (() => void) | null) {
+    this.onUnauthorized = cb;
   }
 
   private async request<T>(
@@ -32,204 +42,491 @@ class APIClient {
     });
 
     if (!res.ok) {
-      const error = await res.json().catch(() => ({ message: "Request failed" }));
-      throw new Error(error.message || `HTTP ${res.status}`);
+      if (res.status === 401 && this.token && this.onUnauthorized) {
+        this.onUnauthorized();
+      }
+      const error = await res
+        .json()
+        .catch(() => ({ message: "Request failed" }));
+      throw new Error(error.message || error.error || `HTTP ${res.status}`);
     }
 
     return res.json();
   }
 
+  // ============ Auth ============
+
+  async challenge(walletAddress: string) {
+    return this.request<ChallengeResponse>("POST", "/api/v1/auth/challenge", {
+      wallet_address: walletAddress,
+    });
+  }
+
+  async createKey(req: CreateKeyRequest) {
+    return this.request<CreateKeyResponse>("POST", "/api/v1/auth/keys", req);
+  }
+
+  async getKey() {
+    return this.request<{ api_key: APIKey }>("GET", "/api/v1/auth/keys");
+  }
+
+  async deleteKey() {
+    return this.request<void>("DELETE", "/api/v1/auth/keys");
+  }
+
   // ============ MCP ============
-  
+
   async listMCPs() {
-    return this.request<{ mcps: MCP[] }>("GET", "/api/v1/mcp");
+    return this.request<MCPListResponse>("GET", "/api/v1/mcp/list");
   }
 
   async getMCP(id: string) {
     return this.request<MCP>("GET", `/api/v1/mcp/${id}`);
   }
 
-  async createMCP(data: CreateMCPInput) {
-    return this.request<MCP>("POST", "/api/v1/mcp", data);
+  async discoverMCP(req: DiscoverMCPRequest) {
+    return this.request<DiscoverMCPResponse>(
+      "POST",
+      "/api/v1/mcp/discover",
+      req
+    );
+  }
+
+  async registerMCP(req: RegisterMCPRequest) {
+    return this.request<RegisterMCPResponse>(
+      "POST",
+      "/api/v1/mcp/register",
+      req
+    );
+  }
+
+  async updateMCP(id: string, req: UpdateMCPRequest) {
+    return this.request<{ success: boolean; message: string }>(
+      "PUT",
+      `/api/v1/mcp/${id}`,
+      req
+    );
+  }
+
+  async deleteMCP(id: string) {
+    return this.request<void>("DELETE", `/api/v1/mcp/${id}`);
+  }
+
+  async refreshTools(id: string) {
+    return this.request<RefreshToolsResponse>(
+      "POST",
+      `/api/v1/mcp/${id}/refresh`
+    );
+  }
+
+  async getTools(id: string) {
+    return this.request<{ tools: MCPToolEntry[] }>(
+      "GET",
+      `/api/v1/mcp/${id}/tools`
+    );
+  }
+
+  async updateToolPrice(
+    mcpId: string,
+    toolName: string,
+    priceUsd: number
+  ) {
+    return this.request<{ success: boolean; message: string }>(
+      "PUT",
+      `/api/v1/mcp/${mcpId}/tools/${toolName}/price`,
+      { price_usd: priceUsd }
+    );
+  }
+
+  // ============ Billing ============
+
+  async getPaymentHistory(limit = 50, offset = 0) {
+    return this.request<PaymentHistoryResponse>(
+      "GET",
+      `/api/v1/billing/history?limit=${limit}&offset=${offset}`
+    );
+  }
+
+  async getUsage(limit = 50, offset = 0) {
+    return this.request<UsageResponse>(
+      "GET",
+      `/api/v1/billing/usage?limit=${limit}&offset=${offset}`
+    );
+  }
+
+  // ============ Credentials ============
+
+  async listCredentials() {
+    return this.request<CredentialsListResponse>("GET", "/api/v1/credentials");
+  }
+
+  async createCredential(req: CreateCredentialRequest) {
+    return this.request<CreateCredentialResponse>("POST", "/api/v1/credentials", req);
+  }
+
+  async updateCredential(mcpId: string, req: UpdateCredentialRequest) {
+    return this.request<{ message: string }>(
+      "PUT",
+      `/api/v1/credentials/${mcpId}`,
+      req
+    );
+  }
+
+  async deleteCredential(mcpId: string) {
+    return this.request<{ message: string }>(
+      "DELETE",
+      `/api/v1/credentials/${mcpId}`
+    );
+  }
+
+  // ============ OAuth ============
+
+  // TODO: Token in URL leaks to browser history, server logs, and Referer header.
+  // Backend should support session-based auth or short-lived state tokens for OAuth flows.
+  getOAuthAuthorizeURL(mcpId: string, credentialName: string): string {
+    const token = this.getToken();
+    return `${this.baseURL}/api/v1/oauth/authorize?mcp_id=${mcpId}&credential_name=${encodeURIComponent(credentialName)}${token ? `&token=${token}` : ''}`;
   }
 
   // ============ Agents ============
-  
-  async listAgents() {
-    return this.request<{ agents: Agent[] }>("GET", "/api/v1/agents");
+
+  async listAgents(query?: string) {
+    const q = query ? `?q=${encodeURIComponent(query)}` : "";
+    return this.request<AgentListResponse>("GET", `/api/v1/agents${q}`);
   }
 
   async getAgent(id: string) {
-    return this.request<Agent>("GET", `/api/v1/agents/${id}`);
+    return this.request<AgentDetailResponse>("GET", `/api/v1/agents/${id}`);
   }
 
-  async createAgent(data: CreateAgentInput) {
-    return this.request<Agent>("POST", "/api/v1/agents", data);
+  async registerAgent(req: RegisterAgentRequest) {
+    return this.request<{ success: boolean; message: string; agent: Agent }>(
+      "POST",
+      "/api/v1/agents/register",
+      req
+    );
   }
 
-  async updateAgentStatus(id: string, status: "available" | "unavailable") {
-    return this.request<Agent>("POST", `/api/v1/agents/${id}/status`, { status });
+  async updateAgent(id: string, req: UpdateAgentRequest) {
+    return this.request<{ success: boolean; message: string }>(
+      "PUT",
+      `/api/v1/agents/${id}`,
+      req
+    );
   }
 
-  // ============ Tasks ============
-  
-  async listTasks(filters?: TaskFilters) {
-    const params = new URLSearchParams();
-    if (filters?.status) params.set("status", filters.status);
-    if (filters?.userId) params.set("user_id", filters.userId);
-    const query = params.toString() ? `?${params}` : "";
-    return this.request<{ tasks: Task[] }>("GET", `/api/v1/tasks${query}`);
+  async deleteAgent(id: string) {
+    return this.request<void>("DELETE", `/api/v1/agents/${id}`);
   }
 
-  async getTask(id: string) {
-    return this.request<Task>("GET", `/api/v1/tasks/${id}`);
-  }
-
-  async createTask(data: CreateTaskInput) {
-    return this.request<Task>("POST", "/api/v1/tasks", data);
-  }
-
-  async getTaskBids(taskId: string) {
-    return this.request<{ bids: Bid[] }>("GET", `/api/v1/tasks/${taskId}/bids`);
-  }
-
-  // ============ Bids ============
-  
-  async acceptBid(bidId: string) {
-    return this.request<Bid>("POST", `/api/v1/bids/${bidId}/accept`);
-  }
-
-  async rejectBid(bidId: string) {
-    return this.request<Bid>("POST", `/api/v1/bids/${bidId}/reject`);
-  }
-
-  // ============ Payments ============
-  
-  async preparePayment(taskId: string) {
-    return this.request<{ transaction: string }>("POST", `/api/v1/tasks/${taskId}/pay`);
-  }
-
-  async confirmPayment(taskId: string, txId: string) {
-    return this.request<Task>("POST", `/api/v1/tasks/${taskId}/confirm-payment`, { txId });
-  }
-
-  // ============ Results ============
-  
-  async approveResult(taskId: string) {
-    return this.request<Task>("POST", `/api/v1/tasks/${taskId}/approve`);
-  }
-
-  async requestRevision(taskId: string, feedback: string) {
-    return this.request<Task>("POST", `/api/v1/tasks/${taskId}/revision`, { feedback });
-  }
-
-  async disputeTask(taskId: string, reason: string) {
-    return this.request<Task>("POST", `/api/v1/tasks/${taskId}/dispute`, { reason });
+  async refreshAgentSkills(id: string) {
+    return this.request<{ success: boolean; num_skills: number; skills: AgentSkill[] }>(
+      "POST",
+      `/api/v1/agents/${id}/refresh`
+    );
   }
 }
 
-export const api = new APIClient(API_BASE);
+export const gateway = new GatewayClient(API_BASE);
 
-// ============ Types ============
+// ============ Auth Types ============
+
+export interface ChallengeResponse {
+  nonce: string;
+  expires_at: string;
+}
+
+export interface CreateKeyRequest {
+  wallet_address: string;
+  signature: string;
+  nonce: string;
+}
+
+export interface CreateKeyResponse {
+  api_key: APIKey;
+}
+
+export interface APIKey {
+  owner_address: string;
+  key: string;
+  created_at: string;
+}
+
+// ============ MCP Types ============
+
+export interface ConfigSchema {
+  headers: { key: string; value: string }[];
+  query_params?: { key: string; value: string }[];
+}
+
+export interface AuthConfig {
+  id: string;
+  mcp_server_id: string;
+  credential_name: string;
+  auth_type: "static" | "oauth";
+  required: boolean;
+  description?: string;
+  auth_url?: string;
+  token_url?: string;
+  client_id?: string;
+  scopes?: string[];
+}
+
+export interface RegisterAuthConfig {
+  credential_name: string;
+  auth_type: "static" | "oauth";
+  required: boolean;
+  description?: string;
+  auth_url?: string;
+  token_url?: string;
+  client_id?: string;
+  client_secret?: string;
+  scopes?: string[];
+}
 
 export interface MCP {
   id: string;
   name: string;
   description: string;
-  providerAddress: string;
   endpoint: string;
-  pricePerCall: number;
+  transport: string;
+  tags: string[];
+  num_tools: number;
+  owner_address: string;
+  payout_address: string;
+  currency: string;
+  requires_config: boolean;
+  config_schema?: ConfigSchema;
+  auth_configs?: AuthConfig[];
+  source: string;
+  source_url?: string;
+  is_verified: boolean;
+  icon_url?: string;
   status: string;
+  is_healthy: boolean;
+  last_check_at?: string;
+  created_at: string;
+  updated_at: string;
 }
+
+export interface MCPListResponse {
+  tools: MCP[];
+  total: number;
+}
+
+export interface MCPToolEntry {
+  id: string;
+  server_id: string;
+  tool_name: string;
+  description: string;
+  input_schema?: Record<string, unknown>;
+  price_usd: number;
+}
+
+export interface DiscoverMCPRequest {
+  endpoint: string;
+  transport?: string;
+  upstream_headers?: Record<string, string>;
+}
+
+export interface DiscoverMCPResponse {
+  tools: DiscoveredTool[];
+  requires_auth?: boolean;
+  error?: string;
+}
+
+export interface DiscoveredTool {
+  name: string;
+  description: string;
+  input_schema?: Record<string, unknown>;
+}
+
+export interface ToolPricing {
+  name: string;
+  price_usd: number;
+}
+
+export interface RegisterMCPRequest {
+  name: string;
+  endpoint: string;
+  owner_address: string;
+  description?: string;
+  transport?: string;
+  tags?: string[];
+  payout_address?: string;
+  currency?: string;
+  upstream_headers?: Record<string, string>;
+  tools?: ToolPricing[];
+  discovered_tools?: DiscoveredTool[]; // Full tool info from discovery
+  requires_config?: boolean;
+  config_schema?: ConfigSchema;
+  auth_configs?: RegisterAuthConfig[];
+}
+
+export interface RegisterMCPResponse {
+  success: boolean;
+  message: string;
+  tool: MCP;
+}
+
+export interface UpdateMCPRequest {
+  name?: string;
+  description?: string;
+  endpoint?: string;
+  transport?: string;
+  tags?: string[];
+  payout_address?: string;
+  currency?: string;
+  status?: string;
+  upstream_headers?: Record<string, string>;
+}
+
+export interface RefreshToolsResponse {
+  success: boolean;
+  num_tools: number;
+  tools: { name: string; description: string; inputSchema: Record<string, unknown> }[];
+}
+
+// ============ Billing Types ============
+
+export interface CallLog {
+  id: string;
+  gateway_type: string;
+  service_id: string;
+  tool_name: string;
+  caller_address: string;
+  owner_address: string;
+  status: string;
+  duration_ms?: number;
+  error_message?: string;
+  created_at: string;
+}
+
+export interface UsageResponse {
+  calls: CallLog[];
+  total: number;
+}
+
+export interface PaymentLog {
+  id: string;
+  tx_signature: string;
+  payer_address: string;
+  server_id: string;
+  tool_name: string;
+  token: string;
+  amount_raw: number;
+  amount_usd: number;
+  owner_address: string;
+  owner_share_usd: number;
+  platform_share_usd: number;
+  status: string;
+  created_at: string;
+}
+
+export interface PaymentHistoryResponse {
+  payments: PaymentLog[];
+  total: number;
+}
+
+// ============ Credentials Types ============
+
+export interface CredentialInfo {
+  id: string;
+  mcp_server_id: string;
+  mcp_name?: string;
+  token_name: string;
+  created_at: string;
+  last_used_at?: string;
+  auto_refreshed?: boolean;
+  num_tools?: number;
+  auto_refresh_error?: string;
+}
+
+export interface CredentialsListResponse {
+  credentials: CredentialInfo[];
+}
+
+export interface CreateCredentialRequest {
+  mcp_server_id: string;
+  token_name: string;
+  token: string;
+}
+
+export type CreateCredentialResponse = CredentialInfo;
+
+export interface UpdateCredentialRequest {
+  token?: string;
+  token_name?: string;
+}
+
+// ============ Agent Types ============
 
 export interface Agent {
   id: string;
   name: string;
   description: string;
-  walletAddress: string;
-  capabilities: string[];
-  status: string;
-  rating: number;
-  completedTasks: number;
-}
-
-export interface Task {
-  id: string;
-  userId: string;
-  request: string;
-  requirements: Record<string, unknown>;
-  budgetIbwt: number;
-  deadline: string | null;
-  status: string;
-  acceptedBidId: string | null;
-  createdAt: string;
-}
-
-export interface Bid {
-  id: string;
-  taskId: string;
-  agentId: string;
-  agentAddress: string;
-  agent_fee: number;
-  mcp_plan: MCPQuota[];
-  total: number;
-  eta_minutes: number;
-  message: string;
-  status: string;
-  created_at: string;
-  agent?: Agent;
-}
-
-export interface MCPQuota {
-  mcp_id: string;
-  mcp_name: string;
-  calls: number;
-  price_per_call: number;
-  subtotal: number;
-}
-
-export interface TaskResult {
-  id: string;
-  task_id: string;
-  outputs: ResultOutput[];
-  revision_count: number;
-  submitted_at: string;
-}
-
-export interface ResultOutput {
-  type: "text" | "image" | "file" | "audio" | "video";
-  label: string;
-  content?: string;
-  url?: string;
-  filename?: string;
-  size?: number;
-  duration?: number;
-  mime_type?: string;
-}
-
-export interface CreateMCPInput {
-  name: string;
-  description: string;
   endpoint: string;
-  pricePerCall: number;
+  provider_org?: string;
+  provider_url?: string;
+  version: string;
+  input_modes: string[];
+  output_modes: string[];
+  streaming: boolean;
+  tags: string[];
+  owner_address: string;
+  payout_address?: string;
+  price_per_task: number;
+  requires_config: boolean;
+  config_schema?: ConfigSchema;
+  status: string;
+  is_healthy: boolean;
+  last_check_at?: string;
+  num_skills: number;
+  source: string;
+  is_verified: boolean;
+  icon_url?: string;
+  created_at: string;
+  updated_at: string;
 }
 
-export interface CreateAgentInput {
+export interface AgentSkill {
+  id: string;
+  agent_id: string;
+  skill_id: string;
   name: string;
   description: string;
-  walletAddress: string;
-  webhookUrl: string;
-  capabilities: string[];
+  tags?: string[];
+  examples?: string[];
+  input_modes?: string[];
+  output_modes?: string[];
+  created_at: string;
 }
 
-export interface CreateTaskInput {
-  request: string;
-  requirements?: Record<string, unknown>;
-  budgetIbwt: number;
-  deadline?: string;
+export interface AgentListResponse {
+  agents: Agent[];
+  total: number;
 }
 
-export interface TaskFilters {
+export interface AgentDetailResponse {
+  agent: Agent;
+  skills: AgentSkill[];
+}
+
+export interface RegisterAgentRequest {
+  endpoint: string;
+  name?: string;
+  description?: string;
+  tags?: string[];
+  payout_address?: string;
+  price_per_task?: number;
+}
+
+export interface UpdateAgentRequest {
+  name?: string;
+  description?: string;
+  endpoint?: string;
+  tags?: string[];
+  payout_address?: string;
+  price_per_task?: number;
   status?: string;
-  userId?: string;
 }

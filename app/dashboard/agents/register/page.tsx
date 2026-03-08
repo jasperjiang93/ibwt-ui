@@ -2,153 +2,182 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { gateway, type RegisterAgentRequest } from "@/lib/api";
+import { useGatewayStore } from "@/lib/gateway-store";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { api } from "@/lib/api";
+import { Field } from "@/components/ui/field";
+import { Alert } from "@/components/ui/alert";
+
 
 export default function RegisterAgentPage() {
   const router = useRouter();
-  const { publicKey, connected } = useWallet();
-  const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({
-    name: "",
-    description: "",
-    webhookUrl: "",
-    capabilities: "",
+  const queryClient = useQueryClient();
+  const { publicKey } = useWallet();
+  const { apiKey } = useGatewayStore();
+
+  const [endpoint, setEndpoint] = useState("");
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [tagsInput, setTagsInput] = useState("");
+  const [payoutAddress, setPayoutAddress] = useState("");
+  const [pricePerTask, setPricePerTask] = useState(0);
+  const [success, setSuccess] = useState(false);
+
+  const registerMutation = useMutation({
+    mutationFn: (req: RegisterAgentRequest) => gateway.registerAgent(req),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["dashboard-agents"] });
+      setSuccess(true);
+      setTimeout(() => {
+        router.push("/dashboard/agents");
+      }, 1500);
+    },
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!connected || !publicKey) {
-      alert("Please connect your wallet first");
-      return;
-    }
+    const tags = tagsInput
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
 
-    setLoading(true);
+    const walletAddress = publicKey?.toBase58() || "";
 
-    try {
-      const agent = await api.createAgent({
-        name: form.name,
-        description: form.description,
-        walletAddress: publicKey.toBase58(),
-        webhookUrl: form.webhookUrl,
-        capabilities: form.capabilities.split(",").map((c) => c.trim()).filter(Boolean),
-      });
-      router.push(`/dashboard/agents/${agent.id}`);
-    } catch (error) {
-      console.error("Failed to register agent:", error);
-      alert("Failed to register agent");
-    } finally {
-      setLoading(false);
-    }
+    const req: RegisterAgentRequest = {
+      endpoint,
+      name: name.trim() || undefined,
+      description: description.trim() || undefined,
+      tags: tags.length ? tags : undefined,
+      payout_address: payoutAddress.trim() || walletAddress || undefined,
+      price_per_task: pricePerTask,
+    };
+
+    registerMutation.mutate(req);
   };
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-bold mb-6">Register AI Agent</h1>
+      <button
+        onClick={() => router.push("/dashboard/agents")}
+        className="text-sm text-[#888] hover:text-white mb-4 block"
+      >
+        &larr; Back to Agents
+      </button>
 
-      {!connected && (
-        <div className="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/50 rounded-lg">
-          <p className="text-yellow-400">
-            ⚠️ Please connect your wallet to register an agent
-          </p>
-        </div>
+      <h1 className="text-2xl font-bold mb-6">Register Agent</h1>
+
+      {!apiKey && (
+        <Alert variant="warning" className="mb-6">
+          Gateway not connected. Please reconnect your wallet or refresh the
+          page.
+        </Alert>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Name */}
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            Agent Name *
-          </label>
-          <input
-            type="text"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            placeholder="ResearchBot"
-            required
-            className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg focus:border-purple-500 focus:outline-none"
-          />
-        </div>
+      {success && (
+        <Alert variant="success" className="mb-6">
+          Agent registered successfully! Redirecting...
+        </Alert>
+      )}
 
-        {/* Description */}
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            Description *
-          </label>
-          <textarea
-            value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
-            placeholder="Describe what your agent specializes in..."
-            rows={3}
-            required
-            className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg focus:border-purple-500 focus:outline-none"
-          />
-        </div>
-
-        {/* Webhook URL */}
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            Webhook URL *
-          </label>
+      <form onSubmit={handleSubmit} className="card p-6 space-y-5">
+        <Field label="Endpoint" required>
           <input
             type="url"
-            value={form.webhookUrl}
-            onChange={(e) => setForm({ ...form, webhookUrl: e.target.value })}
-            placeholder="https://your-agent.com/webhook"
             required
-            className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg focus:border-purple-500 focus:outline-none"
+            value={endpoint}
+            onChange={(e) => setEndpoint(e.target.value)}
+            placeholder="https://agent.example.com"
+            className="input"
           />
-          <p className="text-gray-500 text-sm mt-1">
-            We'll POST new tasks to this URL
+          <p className="text-xs text-[#666] mt-1">
+            The agent card will be fetched automatically from this URL during
+            registration.
           </p>
-        </div>
+        </Field>
 
-        {/* Capabilities */}
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            Capabilities (comma-separated)
-          </label>
+        <Field label="Name">
           <input
             type="text"
-            value={form.capabilities}
-            onChange={(e) => setForm({ ...form, capabilities: e.target.value })}
-            placeholder="research, writing, data-analysis"
-            className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg focus:border-purple-500 focus:outline-none"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Auto-detected from agent card"
+            className="input"
           />
-        </div>
+        </Field>
 
-        {/* Wallet */}
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            Wallet Address
-          </label>
-          <div className="px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-gray-400 font-mono text-sm">
-            {connected && publicKey ? publicKey.toBase58() : "Not connected"}
-          </div>
-          <p className="text-gray-500 text-sm mt-1">
-            Payments will be sent to this wallet
+        <Field label="Description">
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Auto-detected from agent card"
+            rows={3}
+            className="input"
+          />
+        </Field>
+
+        <Field label="Tags (comma-separated)">
+          <input
+            type="text"
+            value={tagsInput}
+            onChange={(e) => setTagsInput(e.target.value)}
+            placeholder="search, data, ai"
+            className="input"
+          />
+        </Field>
+
+        <Field label="Payout Address">
+          <input
+            type="text"
+            value={payoutAddress}
+            onChange={(e) => setPayoutAddress(e.target.value)}
+            placeholder={publicKey?.toBase58() || "Solana wallet address"}
+            className="input"
+          />
+          <p className="text-xs text-[#666] mt-1">
+            Defaults to your connected wallet address if left empty.
           </p>
-        </div>
+        </Field>
 
-        {/* Submit */}
-        <div className="flex gap-4">
+        <Field label="Price per Task (USD)">
+          <input
+            type="number"
+            step="0.000001"
+            min="0"
+            value={pricePerTask || ""}
+            onChange={(e) => setPricePerTask(parseFloat(e.target.value) || 0)}
+            placeholder="0.001"
+            className="input"
+          />
+        </Field>
+
+        <div className="flex gap-2 pt-2">
           <button
             type="submit"
-            disabled={loading || !connected}
-            className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 disabled:opacity-50"
+            disabled={registerMutation.isPending || !endpoint.trim() || success}
+            className="px-4 py-2 bg-[#d4af37] text-black font-medium rounded-lg hover:bg-[#c4a030] transition disabled:opacity-50"
           >
-            {loading ? "Registering..." : "Register Agent"}
+            {registerMutation.isPending ? "Registering..." : "Register Agent"}
           </button>
           <button
             type="button"
-            onClick={() => router.back()}
-            className="px-6 py-3 border border-gray-700 rounded-lg hover:bg-gray-800"
+            onClick={() => router.push("/dashboard/agents")}
+            className="px-4 py-2 border border-gray-700 text-[#888] rounded-lg hover:bg-gray-800 transition"
           >
             Cancel
           </button>
         </div>
+
+        {registerMutation.error && (
+          <Alert>
+            {registerMutation.error instanceof Error
+              ? registerMutation.error.message
+              : "Failed to register agent"}
+          </Alert>
+        )}
       </form>
     </div>
   );
 }
+

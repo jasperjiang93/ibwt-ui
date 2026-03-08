@@ -1,34 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Nav } from "@/components/nav";
-import { WaitlistModal } from "@/components/waitlist-modal";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { useCallback } from "react";
 
-const isLocal = process.env.NEXT_PUBLIC_ENV === "local";
-
 export default function SignInPage() {
   const { publicKey, connected, disconnect } = useWallet();
   const { setVisible } = useWalletModal();
-  const router = useRouter();
 
   const handleConnect = useCallback(() => {
     setVisible(true);
   }, [setVisible]);
-
-  if (!isLocal) {
-    return (
-      <>
-        <Nav />
-        <main className="pt-24 min-h-screen flex items-center justify-center px-6">
-          <WaitlistModal open={true} onClose={() => router.push("/")} />
-        </main>
-      </>
-    );
-  }
 
   return (
     <>
@@ -72,8 +56,6 @@ export default function SignInPage() {
                 onClick={handleConnect}
                 className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-[rgba(171,113,248,0.15)] border border-[rgba(171,113,248,0.4)] rounded-lg hover:bg-[rgba(171,113,248,0.25)] transition group"
               >
-                {/* Phantom logo */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <span className="text-[#ab71f8] group-hover:text-[#c49bff] font-medium transition">
                   Connect Wallet
                 </span>
