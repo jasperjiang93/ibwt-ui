@@ -4,16 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { WaitlistModal } from "@/components/waitlist-modal";
-
-const isLocal = process.env.NEXT_PUBLIC_ENV === "local";
 
 export function Nav() {
   const pathname = usePathname();
   const { connected } = useWallet();
   const [aboutOpen, setAboutOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [waitlistOpen, setWaitlistOpen] = useState(false);
 
   const isActive = (path: string) => {
     if (path === "/") return pathname === "/";
@@ -30,14 +26,11 @@ export function Nav() {
 
         {/* Center Nav — desktop */}
         <div className="hidden md:flex items-center gap-8">
-          <NavLink href="/tasks" active={isActive("/tasks")}>
-            Tasks
+          <NavLink href="/marketplace" active={isActive("/marketplace")}>
+            Marketplace
           </NavLink>
-          <NavLink href="/agents" active={isActive("/agents")}>
-            Agents
-          </NavLink>
-          <NavLink href="/mcps" active={isActive("/mcps")}>
-            MCPs
+          <NavLink href="/docs" active={isActive("/docs")}>
+            Docs
           </NavLink>
 
           {/* About Dropdown */}
@@ -79,20 +72,13 @@ export function Nav() {
             <Link href="/dashboard" className="btn-primary text-sm">
               Dashboard
             </Link>
-          ) : isLocal ? (
+          ) : (
             <Link
               href="/signin"
               className="px-4 py-2 bg-[rgba(212,175,55,0.15)] text-[#d4af37] border border-[rgba(212,175,55,0.3)] rounded-lg text-sm font-medium hover:bg-[rgba(212,175,55,0.25)] transition"
             >
               Sign In
             </Link>
-          ) : (
-            <button
-              onClick={() => setWaitlistOpen(true)}
-              className="px-4 py-2 bg-[rgba(212,175,55,0.15)] text-[#d4af37] border border-[rgba(212,175,55,0.3)] rounded-lg text-sm font-medium hover:bg-[rgba(212,175,55,0.25)] transition"
-            >
-              Sign In
-            </button>
           )}
 
           {/* Hamburger — mobile only */}
@@ -112,9 +98,7 @@ export function Nav() {
       {mobileOpen && (
         <div className="md:hidden border-t border-[rgba(212,175,55,0.2)] bg-[rgba(10,10,15,0.95)] backdrop-blur-xl">
           <div className="px-6 py-4 flex flex-col gap-4">
-            <MobileNavLink href="/tasks" active={isActive("/tasks")} onNavigate={() => setMobileOpen(false)}>Tasks</MobileNavLink>
-            <MobileNavLink href="/agents" active={isActive("/agents")} onNavigate={() => setMobileOpen(false)}>Agents</MobileNavLink>
-            <MobileNavLink href="/mcps" active={isActive("/mcps")} onNavigate={() => setMobileOpen(false)}>MCPs</MobileNavLink>
+            <MobileNavLink href="/marketplace" active={isActive("/marketplace")} onNavigate={() => setMobileOpen(false)}>Marketplace</MobileNavLink>
             <MobileNavLink href="/contact" active={isActive("/contact")} onNavigate={() => setMobileOpen(false)}>Contact</MobileNavLink>
 
             <div className="border-t border-[rgba(212,175,55,0.1)] pt-4 flex flex-col gap-3">
@@ -127,8 +111,6 @@ export function Nav() {
           </div>
         </div>
       )}
-
-      <WaitlistModal open={waitlistOpen} onClose={() => setWaitlistOpen(false)} />
     </nav>
   );
 }

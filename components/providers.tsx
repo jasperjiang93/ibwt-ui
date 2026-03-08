@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useMemo } from "react";
+import { ReactNode, useMemo, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   ConnectionProvider,
@@ -13,9 +13,8 @@ import { SOLANA_RPC_URL } from "@/lib/solana";
 // Import wallet adapter styles
 import "@solana/wallet-adapter-react-ui/styles.css";
 
-const queryClient = new QueryClient();
-
 export function Providers({ children }: { children: ReactNode }) {
+  const [queryClient] = useState(() => new QueryClient());
   const wallets = useMemo(() => [new PhantomWalletAdapter()], []);
 
   return (

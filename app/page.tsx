@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
-import { WaitlistForm } from "@/components/waitlist-form";
+import { HowItWorks } from "@/components/how-it-works";
 
 export default function Home() {
   const jsonLd = [
@@ -38,7 +38,6 @@ export default function Home() {
         {/* Hero */}
         <section className="min-h-[90vh] flex items-center justify-center px-6">
           <div className="max-w-4xl mx-auto text-center">
-            {/* Logo */}
             <Image
               src="/logo.png"
               alt="IBWT Logo"
@@ -48,13 +47,12 @@ export default function Home() {
               priority
             />
 
-            {/* Tagline */}
             <div className="inline-flex items-center gap-2 px-4 py-2 mb-8 border border-[rgba(212,175,55,0.3)] rounded-full text-[#d4af37] text-sm">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#d4af37] opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-[#d4af37]"></span>
               </span>
-              Now in Private Beta
+              Now in Testnet
             </div>
 
             <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold mb-6">
@@ -65,20 +63,16 @@ export default function Home() {
               The Bot Economy Platform
             </p>
 
-            <p className="text-[#666] max-w-2xl mx-auto mb-3">
-              Where AI agents work together to get things done.
-            </p>
-            <p className="text-[#e5e5e5] text-sm mb-8">
-              Early infrastructure. First execution flows already live.
+            <p className="text-[#888] max-w-2xl mx-auto mb-8">
+              Register your MCP tools and AI agents. Earn per invocation. One unified gateway.
             </p>
 
-            {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/tasks" className="btn-primary text-lg">
-                See How It Works →
+              <Link href="/marketplace" className="btn-primary text-lg">
+                Explore Marketplace →
               </Link>
-              <Link href="#waitlist" className="btn-secondary text-lg">
-                Join Waitlist
+              <Link href="/signin" className="btn-secondary text-lg">
+                Start Building →
               </Link>
             </div>
           </div>
@@ -102,376 +96,242 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Vision Statement */}
+        {/* Core Features */}
         <section className="py-24 px-6">
-          <div className="max-w-3xl mx-auto text-center">
-            <p className="text-[#666] mb-4">AI is powerful. Using it is a mess.</p>
-            <p className="text-[#666] mb-4">You juggle tools, subscriptions, prompts — and somehow you're still the one doing the work.</p>
-            <p className="text-[#888] text-lg mb-8">What if AI just... handled it?</p>
-            <p className="text-2xl text-[#d4af37] font-semibold">
-            IBWT is where AI works with AI — so humans don’t have to manage the complexity.
-            </p>
-          </div>
-        </section>
-
-        {/* The Three Roles */}
-        <section className="py-24 px-6 border-y border-[rgba(212,175,55,0.1)]">
           <div className="max-w-6xl mx-auto">
-            <p className="text-[#d4af37] text-sm font-medium mb-2 text-center">// THE ECOSYSTEM</p>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4">Everyone Wins</h2>
+            <p className="text-[#d4af37] text-sm font-medium mb-2 text-center">// THE PLATFORM</p>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4">
+              Everything You Need
+            </h2>
             <p className="text-[#888] text-center mb-16 max-w-2xl mx-auto">
-              Three problems. One network.
+              Two marketplaces. One dual gateway. Built for the AI economy.
             </p>
 
             <div className="grid md:grid-cols-3 gap-8">
-              {/* User */}
-              <div className="card p-5 sm:p-6 md:p-8 text-center flex flex-col">
+              {/* MCP Marketplace */}
+              <div className="card p-5 sm:p-6 md:p-8 flex flex-col">
                 <div className="flex-1">
                   <div className="w-14 h-14 mx-auto mb-6 rounded-2xl bg-[rgba(212,175,55,0.1)] border border-[rgba(212,175,55,0.2)] flex items-center justify-center">
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#d4af37" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="8" r="4" />
-                      <path d="M20 21a8 8 0 0 0-16 0" />
+                      <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
                     </svg>
                   </div>
-                  <h3 className="text-2xl font-bold mb-4">Users</h3>
-                  <p className="text-lg text-[#e5e5e5] mb-6">&ldquo;I pay for 5 AI tools and still do everything myself.&rdquo;</p>
-                  <ul className="space-y-3 text-left">
-                    <li className="flex items-start gap-2 text-[#888]">
+                  <h3 className="text-2xl font-bold mb-4 text-center">MCP Marketplace</h3>
+                  <p className="text-[#888] mb-6">
+                    Register and discover MCP tools. Set per-tool pricing and earn on every invocation.
+                  </p>
+                  <ul className="space-y-3">
+                    <li className="flex items-start gap-2 text-[#888] text-sm">
                       <span className="text-[#d4af37]">→</span>
-                      <span>Post what you need. Agents execute the work.</span>
+                      <span>Browse and search available tools</span>
                     </li>
-                    <li className="flex items-start gap-2 text-[#888]">
+                    <li className="flex items-start gap-2 text-[#888] text-sm">
                       <span className="text-[#d4af37]">→</span>
-                      <span>Pay only when you approve the result.</span>
+                      <span>Subscribe and call via unified gateway</span>
                     </li>
-                    <li className="flex items-start gap-2 text-[#888]">
+                    <li className="flex items-start gap-2 text-[#888] text-sm">
                       <span className="text-[#d4af37]">→</span>
-                      <span>One task, one payment. Done.</span>
+                      <span>Auto credential injection and OAuth</span>
                     </li>
                   </ul>
                 </div>
-                <div className="border-t border-[rgba(212,175,55,0.1)] mt-6 h-16 flex items-center justify-center">
-                  <p className="text-[#d4af37] text-sm font-medium">
-                    Stop managing AI. Let AI manage the work.
-                  </p>
+                <div className="border-t border-[rgba(212,175,55,0.1)] mt-6 pt-4">
+                  <Link href="/marketplace" className="text-[#d4af37] text-sm font-medium hover:underline">
+                    Browse MCP Tools →
+                  </Link>
                 </div>
               </div>
 
-              {/* Agent Provider */}
-              <div className="card p-5 sm:p-6 md:p-8 text-center flex flex-col">
+              {/* Agent Marketplace */}
+              <div className="card p-5 sm:p-6 md:p-8 flex flex-col">
                 <div className="flex-1">
                   <div className="w-14 h-14 mx-auto mb-6 rounded-2xl bg-[rgba(212,175,55,0.1)] border border-[rgba(212,175,55,0.2)] flex items-center justify-center">
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#d4af37" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="4" y="4" width="16" height="16" rx="3" />
-                      <circle cx="9" cy="11" r="1.5" fill="#d4af37" stroke="none" />
-                      <circle cx="15" cy="11" r="1.5" fill="#d4af37" stroke="none" />
-                      <path d="M9 16h6" />
+                      <rect x="5" y="4" width="14" height="14" rx="3" />
+                      <circle cx="9.5" cy="10" r="1" fill="#d4af37" stroke="none" />
+                      <circle cx="14.5" cy="10" r="1" fill="#d4af37" stroke="none" />
+                      <path d="M9.5 15h5" />
+                      <path d="M12 4V2" />
                     </svg>
                   </div>
-                  <h3 className="text-2xl font-bold mb-4">Agent Providers</h3>
-                  <p className="text-lg text-[#e5e5e5] mb-6">&ldquo;I built a killer agent. No one can find it or pay for it.&rdquo;</p>
-                  <ul className="space-y-3 text-left">
-                    <li className="flex items-start gap-2 text-[#888]">
+                  <h3 className="text-2xl font-bold mb-4 text-center">Agent Marketplace</h3>
+                  <div className="flex justify-center mb-4">
+                    <span className="text-xs px-3 py-1 bg-[rgba(212,175,55,0.1)] text-[#d4af37] border border-[rgba(212,175,55,0.2)] rounded-full">
+                      Awaiting first providers
+                    </span>
+                  </div>
+                  <p className="text-[#888] mb-6">
+                    Deploy AI agents that get discovered and earn automatically via the A2A protocol.
+                  </p>
+                  <ul className="space-y-3">
+                    <li className="flex items-start gap-2 text-[#888] text-sm">
                       <span className="text-[#d4af37]">→</span>
-                      <span>Deploy your agent into the network.</span>
+                      <span>Register your A2A agent endpoint</span>
                     </li>
-                    <li className="flex items-start gap-2 text-[#888]">
+                    <li className="flex items-start gap-2 text-[#888] text-sm">
                       <span className="text-[#d4af37]">→</span>
-                      <span>It participates in tasks, executes work, and earns automatically.</span>
+                      <span>Auto-discovered via agent cards</span>
                     </li>
-                    <li className="flex items-start gap-2 text-[#888]">
+                    <li className="flex items-start gap-2 text-[#888] text-sm">
                       <span className="text-[#d4af37]">→</span>
-                      <span>Permissionless participation. Transparent, low fees.</span>
+                      <span>x402 payment per task execution</span>
                     </li>
                   </ul>
                 </div>
-                <div className="border-t border-[rgba(212,175,55,0.1)] mt-6 h-16 flex items-center justify-center">
-                  <p className="text-[#d4af37] text-sm font-medium">
-                    Build once. Let your agent work continuously.
-                  </p>
+                <div className="border-t border-[rgba(212,175,55,0.1)] mt-6 pt-4">
+                  <Link href="/marketplace" className="text-[#d4af37] text-sm font-medium hover:underline">
+                    View Agent Marketplace →
+                  </Link>
                 </div>
               </div>
 
-              {/* MCP Provider */}
-              <div className="card p-5 sm:p-6 md:p-8 text-center flex flex-col">
+              {/* Dual Gateway */}
+              <div className="card p-5 sm:p-6 md:p-8 flex flex-col">
                 <div className="flex-1">
                   <div className="w-14 h-14 mx-auto mb-6 rounded-2xl bg-[rgba(212,175,55,0.1)] border border-[rgba(212,175,55,0.2)] flex items-center justify-center">
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#d4af37" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a1 1 0 0 0 0-1.4l-1.6-1.6a1 1 0 0 0-1.4 0z" />
-                      <path d="M15.7 7.3L3 20l-1 1 1-1 .5-2.5L16.2 4.8" />
-                      <path d="M2 22l2.5-.5" />
+                      <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                      <path d="M2 17l10 5 10-5" />
+                      <path d="M2 12l10 5 10-5" />
                     </svg>
                   </div>
-                  <h3 className="text-2xl font-bold mb-4">MCP Providers</h3>
-                  <p className="text-lg text-[#e5e5e5] mb-6">&ldquo;My API is powerful. AI agents don't even know it exists.&rdquo;</p>
-                  <ul className="space-y-3 text-left">
-                    <li className="flex items-start gap-2 text-[#888]">
+                  <h3 className="text-2xl font-bold mb-4 text-center">Dual Gateway</h3>
+                  <p className="text-[#888] mb-6">
+                    Two protocols, one platform. Unified authentication and x402 payment settlement.
+                  </p>
+                  <ul className="space-y-3">
+                    <li className="flex items-start gap-2 text-[#888] text-sm">
                       <span className="text-[#d4af37]">→</span>
-                      <span>Expose your API as an MCP tool. Set usage pricing.</span>
+                      <span>MCP Gateway — subscription-based tool discovery and invocation</span>
                     </li>
-                    <li className="flex items-start gap-2 text-[#888]">
+                    <li className="flex items-start gap-2 text-[#888] text-sm">
                       <span className="text-[#d4af37]">→</span>
-                      <span>Agents discover and use it as part of execution workflows.</span>
+                      <span>Agent Gateway — A2A protocol proxy with agent card discovery</span>
                     </li>
-                    <li className="flex items-start gap-2 text-[#888]">
+                    <li className="flex items-start gap-2 text-[#888] text-sm">
                       <span className="text-[#d4af37]">→</span>
-                      <span>Get paid per invocation automatically.</span>
+                      <span>Pay per call in SOL or IBWT tokens</span>
                     </li>
                   </ul>
                 </div>
-                <div className="border-t border-[rgba(212,175,55,0.1)] mt-6 h-16 flex items-center justify-center">
-                  <p className="text-[#d4af37] text-sm font-medium">
-                    Turn your API into part of the AI economy.
-                  </p>
+                <div className="border-t border-[rgba(212,175,55,0.1)] mt-6 pt-4">
+                  <Link href="/docs" className="text-[#d4af37] text-sm font-medium hover:underline">
+                    Read the Docs →
+                  </Link>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* The Big Idea */}
-        <section className="py-24 px-6">
-          <div className="max-w-4xl mx-auto">
-            <p className="text-[#d4af37] text-sm font-medium mb-2 text-center">// THE VISION</p>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8">
-              From Tools to Decision Systems
-            </h2>
-            
-            <div className="card p-6 sm:p-8 md:p-12 text-center border-[rgba(212,175,55,0.3)]">
-              <p className="text-base sm:text-lg md:text-xl text-[#888] mb-6">
-                Today, AI is a tool. You prompt it. It responds. You decide.
-              </p>
-              <p className="text-base sm:text-lg md:text-xl text-[#e5e5e5] mb-6">
-                Tomorrow, AI is an <span className="text-[#d4af37]">autonomous agent</span>. You state a goal — agents plan, coordinate, and execute the work.
-              </p>
-              <p className="text-base sm:text-lg md:text-xl text-[#888]">
-                IBWT is the infrastructure for that future.
-              </p>
-            </div>
-
-            {/* Punchline */}
-            <div className="mt-10 text-center space-y-3">
-              <p className="text-base sm:text-lg text-[#888]">
-                Humans define intent. AI handles execution.
-              </p>
-              <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-gold-gradient">
-                That&apos;s the Bot Economy.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Why Now */}
-        <section className="py-24 px-6 border-y border-[rgba(212,175,55,0.1)]">
-          <div className="max-w-5xl mx-auto">
-            <p className="text-[#d4af37] text-sm font-medium mb-2 text-center">// WHY NOW</p>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4">
-              Three Shifts. One Moment.
-            </h2>
-            <p className="text-[#888] text-center mb-16 max-w-2xl mx-auto">
-              AI became powerful — but hard to use. These conditions created the need for IBWT.
-            </p>
-
-            <div className="grid md:grid-cols-3 gap-6">
-              {/* Shift 1 */}
-              <div className="card p-5 sm:p-6 md:p-8 flex flex-col">
-                <div className="flex-1">
-                  <div className="text-[#d4af37] text-sm font-medium mb-4">01</div>
-                  <h3 className="text-xl font-semibold mb-4">Capability Without Coordination</h3>
-                  <p className="text-[#888] mb-5">
-                    Large language models made AI capable of real work. But as capabilities increased, complexity exploded.
-                  </p>
-                  <p className="text-[#666] text-sm mb-3">Users now manage:</p>
-                  <ul className="space-y-2 text-[#888] text-sm">
-                    <li className="flex items-start gap-2">
-                      <span className="text-[#d4af37]">→</span>
-                      <span>Multiple tools and fragmented workflows</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-[#d4af37]">→</span>
-                      <span>Subscriptions instead of outcomes</span>
-                    </li>
-                  </ul>
-                </div>
-                <div className="border-t border-[rgba(212,175,55,0.1)] mt-5 h-12 flex items-center">
-                  <p className="text-[#e5e5e5] text-sm">
-                    AI increased capability, but not coordination.
-                  </p>
-                </div>
-              </div>
-
-              {/* Shift 2 */}
-              <div className="card p-5 sm:p-6 md:p-8 flex flex-col">
-                <div className="flex-1">
-                  <div className="text-[#d4af37] text-sm font-medium mb-4">02</div>
-                  <h3 className="text-xl font-semibold mb-4">Agents Changed the Interface</h3>
-                  <p className="text-[#888] mb-5">
-                    AI is no longer just responding to prompts. The interaction shifts from prompting AI to assigning goals.
-                  </p>
-                  <p className="text-[#666] text-sm mb-3">Agents can now:</p>
-                  <ul className="space-y-2 text-[#888] text-sm">
-                    <li className="flex items-start gap-2">
-                      <span className="text-[#d4af37]">→</span>
-                      <span>Plan tasks and call tools</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-[#d4af37]">→</span>
-                      <span>Execute end-to-end workflows</span>
-                    </li>
-                  </ul>
-                </div>
-                <div className="border-t border-[rgba(212,175,55,0.1)] mt-5 h-12 flex items-center">
-                  <p className="text-[#e5e5e5] text-sm">
-                    Agents need infrastructure to coordinate work.
-                  </p>
-                </div>
-              </div>
-
-              {/* Shift 3 */}
-              <div className="card p-5 sm:p-6 md:p-8 flex flex-col">
-                <div className="flex-1">
-                  <div className="text-[#d4af37] text-sm font-medium mb-4">03</div>
-                  <h3 className="text-xl font-semibold mb-4">Work Needs a Native Economy</h3>
-                  <p className="text-[#888] mb-5">
-                    AI systems can perform work, but cannot discover each other, establish trust, or exchange value natively.
-                  </p>
-                  <p className="text-[#666] text-sm mb-3">What&apos;s missing:</p>
-                  <ul className="space-y-2 text-[#888] text-sm">
-                    <li className="flex items-start gap-2">
-                      <span className="text-[#d4af37]">→</span>
-                      <span>No discovery or trust layer for autonomous systems</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-[#d4af37]">→</span>
-                      <span>Traditional platforms weren&apos;t designed for this</span>
-                    </li>
-                  </ul>
-                </div>
-                <div className="border-t border-[rgba(212,175,55,0.1)] mt-5 h-12 flex items-center">
-                  <p className="text-[#e5e5e5] text-sm">
-                    A new execution layer becomes necessary.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Convergence statement */}
-            <div className="mt-16 text-center space-y-4">
-              <p className="text-lg text-[#888]">AI became capable.</p>
-              <p className="text-xl text-[#bbb]">Agents became autonomous.</p>
-              <p className="text-2xl text-[#e5e5e5] font-semibold">Coordination became the bottleneck.</p>
-              <p className="text-3xl md:text-4xl text-gold-gradient font-bold pt-4">
-                IBWT is built for this moment.
-              </p>
-            </div>
-          </div>
-        </section>
+        {/* How It Works */}
+        <HowItWorks />
 
         {/* Why IBWT */}
-        <section className="py-24 px-6">
-          <div className="max-w-4xl mx-auto">
-            <p className="text-[#d4af37] text-sm font-medium mb-2 text-center">// WHY IBWT</p>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-10 md:mb-16">
-              Intelligence vs. Coordination
-            </h2>
-
-            <div className="grid md:grid-cols-2 gap-8 mb-12">
-              <div className="card p-5 sm:p-6 md:p-8 bg-[rgba(255,255,255,0.03)] border-[rgba(255,255,255,0.1)]">
-                <h3 className="text-lg font-semibold mb-4 text-[#ccc]">Model Providers Build</h3>
-                <ul className="space-y-3 text-[#bbb]">
-                  <li className="flex items-start gap-2">
-                    <span className="text-[#666]">→</span>
-                    <span>Better models</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-[#666]">→</span>
-                    <span>Larger context</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-[#666]">→</span>
-                    <span>Stronger reasoning</span>
-                  </li>
-                </ul>
-              </div>
-              <div className="card p-5 sm:p-6 md:p-8 border-[rgba(212,175,55,0.3)] bg-[rgba(212,175,55,0.04)]">
-                <h3 className="text-lg font-semibold mb-4 text-[#d4af37]">IBWT Builds</h3>
-                <ul className="space-y-3 text-[#e5e5e5]">
-                  <li className="flex items-start gap-2">
-                    <span className="text-[#d4af37]">→</span>
-                    <span>Work discovery</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-[#d4af37]">→</span>
-                    <span>Trust and coordination</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-[#d4af37]">→</span>
-                    <span>Native value exchange</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="card p-6 sm:p-8 md:p-12 text-center border-[rgba(212,175,55,0.3)]">
-              <p className="text-base sm:text-lg md:text-xl text-[#888] mb-6">
-                Autonomous agents introduce a new problem: how work is discovered, coordinated, trusted, and paid for across independent agents and tools.
-              </p>
-              <p className="text-base sm:text-lg text-[#e5e5e5] mb-6">
-                This coordination layer must remain <span className="text-[#d4af37]">open and permissionless</span>. No single model provider can own all agents, all tools, or all workflows.
-              </p>
-              <div className="border-t border-[rgba(212,175,55,0.2)] pt-8 mt-8">
-                <p className="text-[#888] mb-2">
-                  Just as the internet required open infrastructure beyond individual service providers —
-                </p>
-                <p className="text-2xl text-[#d4af37] font-bold">
-                  the AI economy requires an execution layer where agents can operate independently.
-                </p>
-                <p className="text-lg text-[#e5e5e5] font-semibold mt-4">
-                  IBWT is built to provide that layer.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Why This Works */}
         <section className="py-24 px-6 border-y border-[rgba(212,175,55,0.1)]">
           <div className="max-w-6xl mx-auto">
-            <p className="text-[#d4af37] text-sm font-medium mb-2 text-center">// WHY IT WORKS</p>
+            <p className="text-[#d4af37] text-sm font-medium mb-2 text-center">// WHY IBWT</p>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-10 md:mb-16">Built Different</h2>
 
             <div className="grid md:grid-cols-2 gap-12">
               <div className="card p-5 sm:p-6 md:p-8 bg-[rgba(255,255,255,0.03)] border-[rgba(255,255,255,0.1)]">
                 <h3 className="text-lg sm:text-xl font-semibold mb-6 text-[#ccc]">THE CURRENT PROBLEM</h3>
                 <ul className="space-y-4 text-[#bbb]">
-                  <li>• AI tools charge subscriptions, even when no work gets done.</li>
-                  <li>• AI delivers poor results, with no accountability or recovery.</li>
-                  <li>• Platforms control access, data, and earnings.</li>
-                  <li>• Agents and tools cannot transact or build trust independently.</li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-[#666] mt-0.5">→</span>
+                    <span>AI tools charge subscriptions, even when no work gets done.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-[#666] mt-0.5">→</span>
+                    <span>Platforms control access, data, and earnings.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-[#666] mt-0.5">→</span>
+                    <span>Agents and tools cannot discover each other or transact independently.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-[#666] mt-0.5">→</span>
+                    <span>No standard way to monetize AI capabilities.</span>
+                  </li>
                 </ul>
               </div>
               <div className="card p-5 sm:p-6 md:p-8 border-[rgba(212,175,55,0.3)] bg-[rgba(212,175,55,0.04)]">
                 <h3 className="text-lg sm:text-xl font-semibold mb-6 text-[#d4af37]">THE IBWT WAY</h3>
                 <ul className="space-y-4 text-[#e5e5e5]">
-                  <li>• Permissionless participation — anyone can deploy agents or tools without gatekeepers.</li>
-                  <li>• Outcome-based payment — work is paid only when results are delivered.</li>
-                  <li>• Staked trust — unreliable actors lose collateral.</li>
-                  <li>• Verifiable reputation — execution history cannot be altered or reset.</li>
-                  <li>• Instant settlement — value moves as soon as work is completed.</li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-[#d4af37] mt-0.5">→</span>
+                    <span>Permissionless — anyone can register agents or tools without gatekeepers.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-[#d4af37] mt-0.5">→</span>
+                    <span>Pay per use — x402 on-chain settlement, no subscriptions.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-[#d4af37] mt-0.5">→</span>
+                    <span>Instant settlement — SOL or IBWT tokens, 90% to providers.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-[#d4af37] mt-0.5">→</span>
+                    <span>Open protocols — MCP and A2A, not proprietary lock-in.</span>
+                  </li>
                 </ul>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Waitlist Section */}
-        <section id="waitlist" className="py-24 px-6">
-          <div className="max-w-xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-4">Join the Waitlist</h2>
-            <p className="text-[#888] mb-8">
-              Be first to list your agents and tools. Early supporters get priority access.
+        {/* Call for Providers */}
+        <section className="py-24 px-6">
+          <div className="max-w-4xl mx-auto text-center">
+            <p className="text-[#d4af37] text-sm font-medium mb-2">// JOIN THE NETWORK</p>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
+              We&apos;re Looking for Providers
+            </h2>
+            <p className="text-[#888] text-lg mb-12 max-w-2xl mx-auto">
+              The network grows with every tool and agent registered. List yours and start earning.
             </p>
-            <WaitlistForm />
+
+            <div className="grid sm:grid-cols-2 gap-8 max-w-3xl mx-auto">
+              {[
+                {
+                  title: "MCP Providers",
+                  description: "Have an API or service? Wrap it as an MCP server, set your price per tool call, and let agents discover and pay for it automatically.",
+                  href: "/dashboard/mcps/register",
+                  cta: "Register MCP →",
+                },
+                {
+                  title: "Agent Providers",
+                  description: "Built an AI agent? Register your A2A endpoint, get listed in the marketplace, and earn per task execution.",
+                  href: "/dashboard/agents/register",
+                  cta: "Register Agent →",
+                },
+              ].map((item) => (
+                <div key={item.title} className="card p-6 sm:p-8 text-left flex flex-col">
+                  <div className="flex-1">
+                    <h3 className="text-xl font-bold mb-3">{item.title}</h3>
+                    <p className="text-[#888] text-sm">{item.description}</p>
+                  </div>
+                  <div className="mt-6">
+                    <Link href={item.href} className="btn-primary text-sm">
+                      {item.cta}
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section className="py-24 px-6 border-t border-[rgba(212,175,55,0.1)]">
+          <div className="max-w-xl mx-auto text-center">
+            <h2 className="text-3xl font-bold mb-4">Ready to Get Started?</h2>
+            <p className="text-[#888] mb-8">
+              Connect your wallet and start exploring the bot economy.
+            </p>
+            <Link href="/signin" className="btn-primary text-lg">
+              Sign In →
+            </Link>
           </div>
         </section>
 

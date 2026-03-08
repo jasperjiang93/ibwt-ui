@@ -6,11 +6,16 @@ import { WalletButton } from "@/components/wallet-button";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { GatewayProvider } from "@/components/gateway-provider";
 import { useGatewayStore } from "@/lib/gateway-store";
-import { IconOverview, IconTools, IconCode, IconLock } from "@/components/icons";
+import { IconOverview, IconTools, IconAgents, IconCode, IconLock, IconWallet, IconKey } from "@/components/icons";
+import { IS_MAINNET } from "@/lib/network";
+
+const isTestnet = !IS_MAINNET;
 
 const navItems = [
   { href: "/dashboard", label: "Overview", icon: IconOverview },
   { href: "/dashboard/mcps", label: "MCPs", icon: IconTools },
+  { href: "/dashboard/agents", label: "Agents", icon: IconAgents },
+  { href: "/dashboard/secrets", label: "Secrets", icon: IconKey },
   { href: "/dashboard/developer", label: "Developer", icon: IconCode },
 ];
 
@@ -113,12 +118,19 @@ export default function DashboardLayout({
         <div className="flex-1 flex flex-col min-h-screen">
           {/* Header */}
           <header className="h-16 border-b border-[rgba(212,175,55,0.2)] flex items-center justify-between px-6 bg-[rgba(10,10,15,0.8)] backdrop-blur-xl sticky top-0 z-40">
-            <div className="text-[#888]">
-              {navItems.find((item) =>
-                item.href === "/dashboard"
-                  ? pathname === "/dashboard"
-                  : pathname.startsWith(item.href)
-              )?.label || "Dashboard"}
+            <div className="flex items-center gap-3">
+              <span className="text-[#888]">
+                {navItems.find((item) =>
+                  item.href === "/dashboard"
+                    ? pathname === "/dashboard"
+                    : pathname.startsWith(item.href)
+                )?.label || "Dashboard"}
+              </span>
+              {isTestnet && (
+                <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+                  Testnet
+                </span>
+              )}
             </div>
             <WalletButton />
           </header>

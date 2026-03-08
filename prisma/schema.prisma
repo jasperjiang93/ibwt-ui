@@ -7,18 +7,5 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model WaitlistEntry {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  role      String   @default("user") // user, agent_provider, mcp_provider, other
-  createdAt DateTime @default(now())
-}
-
-model ContactMessage {
-  id        String   @id @default(cuid())
-  name      String
-  email     String
-  subject   String
-  message   String
-  createdAt DateTime @default(now())
-}
+// Schema is managed by ibwt-gateway migrations
+// Run `npx prisma db pull` to sync from database

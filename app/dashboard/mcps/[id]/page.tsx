@@ -3,14 +3,21 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useWallet } from "@solana/wallet-adapter-react";
 import { gateway, type MCP, type MCPToolEntry, type UpdateMCPRequest } from "@/lib/api";
 import { useGatewayStore } from "@/lib/gateway-store";
+import { formatPrice } from "@/lib/format";
+import { Field } from "@/components/ui/field";
+import { InfoRow } from "@/components/ui/info-row";
+import { Alert } from "@/components/ui/alert";
 
 export default function MCPDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const queryClient = useQueryClient();
   const { apiKey } = useGatewayStore();
+  const { publicKey } = useWallet();
+  const walletAddress = publicKey?.toBase58() || "";
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -61,6 +68,7 @@ export default function MCPDetailPage() {
   }
 
   const tools: MCPToolEntry[] = toolsData?.tools || [];
+  const isOwner = mcp.owner_address === walletAddress;
 
   return (
     <div className="space-y-8 max-w-4xl">
@@ -76,42 +84,44 @@ export default function MCPDetailPage() {
           <h1 className="text-2xl font-bold">{mcp.name}</h1>
           <p className="text-[#888] mt-1">{mcp.description}</p>
         </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setEditing(!editing)}
-            className="px-3 py-1.5 text-sm border border-[rgba(212,175,55,0.3)] text-[#d4af37] rounded-lg hover:bg-[rgba(212,175,55,0.1)] transition"
-          >
-            {editing ? "Cancel" : "Edit"}
-          </button>
-          {confirmDelete ? (
-            <div className="flex gap-1">
-              <button
-                onClick={() => deleteMutation.mutate()}
-                disabled={deleteMutation.isPending}
-                className="px-3 py-1.5 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition disabled:opacity-50"
-              >
-                {deleteMutation.isPending ? "Deleting..." : "Confirm"}
-              </button>
-              <button
-                onClick={() => setConfirmDelete(false)}
-                className="px-3 py-1.5 text-sm border border-gray-700 text-[#888] rounded-lg hover:bg-gray-800 transition"
-              >
-                Cancel
-              </button>
-            </div>
-          ) : (
+        {isOwner && (
+          <div className="flex gap-2">
             <button
-              onClick={() => setConfirmDelete(true)}
-              className="px-3 py-1.5 text-sm border border-red-800 text-red-400 rounded-lg hover:bg-red-900/30 transition"
+              onClick={() => setEditing(!editing)}
+              className="px-3 py-1.5 text-sm border border-[rgba(212,175,55,0.3)] text-[#d4af37] rounded-lg hover:bg-[rgba(212,175,55,0.1)] transition"
             >
-              Delete
+              {editing ? "Cancel" : "Edit"}
             </button>
-          )}
-        </div>
+            {confirmDelete ? (
+              <div className="flex gap-1">
+                <button
+                  onClick={() => deleteMutation.mutate()}
+                  disabled={deleteMutation.isPending}
+                  className="px-3 py-1.5 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition disabled:opacity-50"
+                >
+                  {deleteMutation.isPending ? "Deleting..." : "Confirm"}
+                </button>
+                <button
+                  onClick={() => setConfirmDelete(false)}
+                  className="px-3 py-1.5 text-sm border border-gray-700 text-[#888] rounded-lg hover:bg-gray-800 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setConfirmDelete(true)}
+                className="px-3 py-1.5 text-sm border border-red-800 text-red-400 rounded-lg hover:bg-red-900/30 transition"
+              >
+                Delete
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Edit form */}
-      {editing && <EditForm mcp={mcp} onDone={() => setEditing(false)} />}
+      {editing && isOwner && <EditForm mcp={mcp} onDone={() => setEditing(false)} />}
 
       {/* Info grid */}
       {!editing && (
@@ -121,18 +131,12 @@ export default function MCPDetailPage() {
             <InfoRow label="Endpoint" value={mcp.endpoint} />
             <InfoRow label="Transport" value={mcp.transport} />
             <InfoRow label="Status" value={mcp.status} />
-            <InfoRow label="Currency" value={mcp.currency || "credits"} />
             <InfoRow
               label="Tags"
               value={mcp.tags?.length ? mcp.tags.join(", ") : "—"}
             />
             <InfoRow label="Tools" value={String(mcp.num_tools)} />
-            {mcp.mcp_endpoint && (
-              <InfoRow label="MCP Endpoint" value={mcp.mcp_endpoint} />
-            )}
-            {mcp.sse_endpoint && (
-              <InfoRow label="SSE Endpoint" value={mcp.sse_endpoint} />
-            )}
+            <InfoRow label="Source" value={mcp.source || "user"} />
           </div>
         </div>
       )}
@@ -143,13 +147,15 @@ export default function MCPDetailPage() {
           <h2 className="text-lg font-semibold">
             Discovered Tools ({tools.length})
           </h2>
-          <button
-            onClick={() => refreshMutation.mutate()}
-            disabled={refreshMutation.isPending}
-            className="px-3 py-1.5 text-sm border border-[rgba(212,175,55,0.3)] text-[#d4af37] rounded-lg hover:bg-[rgba(212,175,55,0.1)] transition disabled:opacity-50"
-          >
-            {refreshMutation.isPending ? "Refreshing..." : "Refresh Tools"}
-          </button>
+          {isOwner && (
+            <button
+              onClick={() => refreshMutation.mutate()}
+              disabled={refreshMutation.isPending}
+              className="px-3 py-1.5 text-sm border border-[rgba(212,175,55,0.3)] text-[#d4af37] rounded-lg hover:bg-[rgba(212,175,55,0.1)] transition disabled:opacity-50"
+            >
+              {refreshMutation.isPending ? "Refreshing..." : "Refresh Tools"}
+            </button>
+          )}
         </div>
 
         {toolsLoading ? (
@@ -171,7 +177,7 @@ export default function MCPDetailPage() {
         ) : (
           <div className="space-y-3">
             {tools.map((tool) => (
-              <ToolRow key={tool.tool_name} mcpId={id} tool={tool} />
+              <ToolRow key={tool.tool_name} mcpId={id} tool={tool} isOwner={isOwner} />
             ))}
           </div>
         )}
@@ -180,10 +186,10 @@ export default function MCPDetailPage() {
   );
 }
 
-function ToolRow({ mcpId, tool }: { mcpId: string; tool: MCPToolEntry }) {
+function ToolRow({ mcpId, tool, isOwner }: { mcpId: string; tool: MCPToolEntry; isOwner: boolean }) {
   const queryClient = useQueryClient();
   const [editingPrice, setEditingPrice] = useState(false);
-  const [price, setPrice] = useState(tool.price_per_call ?? 0);
+  const [price, setPrice] = useState(tool.price_usd ?? 0);
 
   const priceMutation = useMutation({
     mutationFn: (newPrice: number) =>
@@ -199,7 +205,7 @@ function ToolRow({ mcpId, tool }: { mcpId: string; tool: MCPToolEntry }) {
   };
 
   const handleCancel = () => {
-    setPrice(tool.price_per_call ?? 0);
+    setPrice(tool.price_usd ?? 0);
     setEditingPrice(false);
   };
 
@@ -212,55 +218,59 @@ function ToolRow({ mcpId, tool }: { mcpId: string; tool: MCPToolEntry }) {
         </div>
 
         {/* Price display / edit */}
-        <div className="flex items-center gap-2 shrink-0">
-          {editingPrice ? (
-            <>
-              <input
-                type="number"
-                min={0}
-                value={price}
-                onChange={(e) => setPrice(Number(e.target.value))}
-                className="input w-20 text-right text-sm"
-                autoFocus
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleSave();
-                  if (e.key === "Escape") handleCancel();
-                }}
-              />
-              <span className="text-xs text-[#666]">credits</span>
-              <button
-                onClick={handleSave}
-                disabled={priceMutation.isPending}
-                className="px-2 py-1 text-xs bg-[#d4af37] text-black rounded hover:bg-[#c4a030] transition disabled:opacity-50"
-              >
-                {priceMutation.isPending ? "..." : "Save"}
-              </button>
-              <button
-                onClick={handleCancel}
-                className="px-2 py-1 text-xs text-[#888] hover:text-white transition"
-              >
-                Cancel
-              </button>
-            </>
-          ) : (
+        <div className="shrink-0 text-right">
+          {isOwner && editingPrice ? (
+            <div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  step="0.000001"
+                  min="0"
+                  value={price || ""}
+                  onChange={(e) => setPrice(parseFloat(e.target.value) || 0)}
+                  placeholder="0.001"
+                  className="input text-sm w-28"
+                />
+                <button
+                  onClick={handleSave}
+                  disabled={priceMutation.isPending}
+                  className="px-2 py-1 text-xs bg-[#d4af37] text-black rounded hover:bg-[#c4a030] transition disabled:opacity-50"
+                >
+                  {priceMutation.isPending ? "..." : "Save"}
+                </button>
+                <button
+                  onClick={handleCancel}
+                  className="px-2 py-1 text-xs text-[#888] hover:text-white transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : isOwner ? (
             <button
               onClick={() => setEditingPrice(true)}
-              className="text-sm text-[#ccc] hover:text-[#d4af37] transition flex items-center gap-1"
+              className="text-sm text-[#ccc] hover:text-[#d4af37] transition text-right"
               title="Click to edit price"
             >
-              <span>{tool.price_per_call ?? 0} credits</span>
-              <span className="text-[#666] text-xs">edit</span>
+              <span className="flex items-center gap-1">
+                <span>{formatPrice(tool.price_usd ?? 0)}</span>
+                <span className="text-[#666] text-xs">edit</span>
+              </span>
             </button>
+          ) : (
+            <span className="text-sm text-[#ccc]">
+              {formatPrice(tool.price_usd ?? 0)}
+            </span>
           )}
         </div>
       </div>
 
       {priceMutation.error && (
-        <p className="text-red-400 text-xs mt-2">
+        <Alert className="mt-2">
           {priceMutation.error instanceof Error
             ? priceMutation.error.message
             : "Failed to update price"}
-        </p>
+        </Alert>
       )}
 
       {tool.input_schema &&
@@ -278,15 +288,6 @@ function ToolRow({ mcpId, tool }: { mcpId: string; tool: MCPToolEntry }) {
   );
 }
 
-function InfoRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <div className="text-[#666] text-xs mb-0.5">{label}</div>
-      <div className="text-[#ccc] break-all">{value}</div>
-    </div>
-  );
-}
-
 function EditForm({ mcp, onDone }: { mcp: MCP; onDone: () => void }) {
   const queryClient = useQueryClient();
   const [form, setForm] = useState<UpdateMCPRequest>({
@@ -296,7 +297,6 @@ function EditForm({ mcp, onDone }: { mcp: MCP; onDone: () => void }) {
     transport: mcp.transport,
     tags: mcp.tags,
     payout_address: mcp.payout_address,
-    currency: mcp.currency,
   });
 
   const mutation = useMutation({
@@ -353,7 +353,7 @@ function EditForm({ mcp, onDone }: { mcp: MCP; onDone: () => void }) {
           >
             <option value="auto">Auto</option>
             <option value="sse">SSE</option>
-            <option value="streamable-http">Streamable HTTP</option>
+            <option value="http">HTTP</option>
           </select>
         </Field>
 
@@ -370,15 +370,6 @@ function EditForm({ mcp, onDone }: { mcp: MCP; onDone: () => void }) {
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <Field label="Currency">
-          <input
-            type="text"
-            value={form.currency || ""}
-            onChange={(e) => setForm({ ...form, currency: e.target.value })}
-            className="input"
-          />
-        </Field>
-
         <Field label="Tags (comma-separated)">
           <input
             type="text"
@@ -415,27 +406,13 @@ function EditForm({ mcp, onDone }: { mcp: MCP; onDone: () => void }) {
       </div>
 
       {mutation.error && (
-        <p className="text-red-400 text-sm">
+        <Alert>
           {mutation.error instanceof Error
             ? mutation.error.message
             : "Failed to update"}
-        </p>
+        </Alert>
       )}
     </form>
   );
 }
 
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <label className="block text-sm text-[#888] mb-1">{label}</label>
-      {children}
-    </div>
-  );
-}

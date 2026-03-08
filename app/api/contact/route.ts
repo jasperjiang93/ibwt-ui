@@ -1,9 +1,18 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { isRateLimited, getClientIP } from "@/lib/rate-limit";
 
 const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL || "jasperjiang93@gmail.com";
 
 export async function POST(request: Request) {
+  const ip = getClientIP(request);
+  if (isRateLimited(ip, 3, 60_000)) {
+    return NextResponse.json(
+      { error: "Too many requests. Try again later." },
+      { status: 429 }
+    );
+  }
+
   try {
     const { name, email, subject, message } = await request.json();
 
@@ -39,7 +48,7 @@ export async function POST(request: Request) {
 
     await sendNotificationEmail({
       to: NOTIFY_EMAIL,
-      subject: `🤖 IBWT Contact: ${subjectLabels[subject] || subject}`,
+      subject: `IBWT Contact: ${subjectLabels[subject] || subject}`,
       text: `
 New contact form submission:
 

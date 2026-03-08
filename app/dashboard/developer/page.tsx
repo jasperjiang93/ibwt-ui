@@ -78,18 +78,79 @@ export default function DeveloperPage() {
         </div>
       </div>
 
-      {/* Quick Start */}
-      <div className="border border-gray-800 rounded-xl p-5">
-        <h2 className="font-semibold mb-1">Quick Start</h2>
-        <p className="text-sm text-[#888] mb-4">
-          List all available tools via the gateway:
-        </p>
-        <div className="relative">
+      {/* API Reference */}
+      <div className="border border-gray-800 rounded-xl p-5 space-y-6">
+        <div>
+          <h2 className="font-semibold mb-1">API Reference</h2>
+          <p className="text-sm text-[#888]">
+            Common endpoints for interacting with IBWT Gateway.
+          </p>
+        </div>
+
+        {/* List MCPs */}
+        <div className="space-y-2">
+          <h3 className="text-sm font-medium text-[#d4af37]">List All MCPs</h3>
+          <pre className="px-4 py-3 bg-[rgba(255,255,255,0.03)] border border-gray-800 rounded-lg text-sm font-mono text-[#ccc] overflow-x-auto">
+{`curl ${GATEWAY_URL}/api/v1/mcp/list`}
+          </pre>
+        </div>
+
+        {/* Get MCP Tools */}
+        <div className="space-y-2">
+          <h3 className="text-sm font-medium text-[#d4af37]">Get MCP Tools</h3>
+          <pre className="px-4 py-3 bg-[rgba(255,255,255,0.03)] border border-gray-800 rounded-lg text-sm font-mono text-[#ccc] overflow-x-auto">
+{`curl ${GATEWAY_URL}/api/v1/mcp/{mcp_id}/tools`}
+          </pre>
+        </div>
+
+        {/* Invoke Tool */}
+        <div className="space-y-2">
+          <h3 className="text-sm font-medium text-[#d4af37]">Invoke a Tool</h3>
+          <p className="text-xs text-[#666] mb-1">Requires API key authentication.</p>
+          <pre className="px-4 py-3 bg-[rgba(255,255,255,0.03)] border border-gray-800 rounded-lg text-sm font-mono text-[#ccc] overflow-x-auto">
+{`curl -X POST ${GATEWAY_URL}/api/v1/mcp/{mcp_id}/invoke \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "tool": "tool_name",
+    "arguments": { "param1": "value1" }
+  }'`}
+          </pre>
+        </div>
+
+        {/* Unified Gateway */}
+        <div className="space-y-2">
+          <h3 className="text-sm font-medium text-[#d4af37]">Unified Gateway (MCP Protocol)</h3>
+          <p className="text-xs text-[#666] mb-1">Access all tools via standard MCP JSON-RPC.</p>
           <pre className="px-4 py-3 bg-[rgba(255,255,255,0.03)] border border-gray-800 rounded-lg text-sm font-mono text-[#ccc] overflow-x-auto">
 {`curl -X POST ${GATEWAY_ENDPOINT} \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{"jsonrpc":"2.0","method":"tools/list","id":1}'`}
+          </pre>
+        </div>
+
+        {/* Store Credentials */}
+        <div className="space-y-2">
+          <h3 className="text-sm font-medium text-[#d4af37]">Store Credentials</h3>
+          <p className="text-xs text-[#666] mb-1">Save credentials for MCPs that require authentication.</p>
+          <pre className="px-4 py-3 bg-[rgba(255,255,255,0.03)] border border-gray-800 rounded-lg text-sm font-mono text-[#ccc] overflow-x-auto">
+{`curl -X POST ${GATEWAY_URL}/api/v1/credentials \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "mcp_id": "mcp-uuid",
+    "tokens": { "GITHUB_TOKEN": "ghp_xxx" }
+  }'`}
+          </pre>
+        </div>
+
+        {/* Check Balance */}
+        <div className="space-y-2">
+          <h3 className="text-sm font-medium text-[#d4af37]">Check Balance</h3>
+          <pre className="px-4 py-3 bg-[rgba(255,255,255,0.03)] border border-gray-800 rounded-lg text-sm font-mono text-[#ccc] overflow-x-auto">
+{`curl ${GATEWAY_URL}/api/v1/billing/balance \\
+  -H "Authorization: Bearer YOUR_API_KEY"`}
           </pre>
         </div>
       </div>

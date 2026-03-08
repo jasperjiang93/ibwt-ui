@@ -1,7 +1,5 @@
 const API_BASE =
-  process.env.NEXT_PUBLIC_GATEWAY_URL ||
-  process.env.NEXT_PUBLIC_API_URL ||
-  "http://localhost:8080";
+  process.env.NEXT_PUBLIC_GATEWAY_URL || "http://localhost:8080";
 
 class GatewayClient {
   private baseURL: string;
@@ -131,25 +129,100 @@ class GatewayClient {
   async updateToolPrice(
     mcpId: string,
     toolName: string,
-    pricePerCall: number
+    priceUsd: number
   ) {
     return this.request<{ success: boolean; message: string }>(
       "PUT",
       `/api/v1/mcp/${mcpId}/tools/${toolName}/price`,
-      { price_per_call: pricePerCall }
+      { price_usd: priceUsd }
     );
   }
 
   // ============ Billing ============
 
-  async getBalance() {
-    return this.request<BalanceResponse>("GET", "/api/v1/billing/balance");
-  }
-
-  async getHistory(limit = 50, offset = 0) {
-    return this.request<HistoryResponse>(
+  async getPaymentHistory(limit = 50, offset = 0) {
+    return this.request<PaymentHistoryResponse>(
       "GET",
       `/api/v1/billing/history?limit=${limit}&offset=${offset}`
+    );
+  }
+
+  async getUsage(limit = 50, offset = 0) {
+    return this.request<UsageResponse>(
+      "GET",
+      `/api/v1/billing/usage?limit=${limit}&offset=${offset}`
+    );
+  }
+
+  // ============ Credentials ============
+
+  async listCredentials() {
+    return this.request<CredentialsListResponse>("GET", "/api/v1/credentials");
+  }
+
+  async createCredential(req: CreateCredentialRequest) {
+    return this.request<CreateCredentialResponse>("POST", "/api/v1/credentials", req);
+  }
+
+  async updateCredential(mcpId: string, req: UpdateCredentialRequest) {
+    return this.request<{ message: string }>(
+      "PUT",
+      `/api/v1/credentials/${mcpId}`,
+      req
+    );
+  }
+
+  async deleteCredential(mcpId: string) {
+    return this.request<{ message: string }>(
+      "DELETE",
+      `/api/v1/credentials/${mcpId}`
+    );
+  }
+
+  // ============ OAuth ============
+
+  // TODO: Token in URL leaks to browser history, server logs, and Referer header.
+  // Backend should support session-based auth or short-lived state tokens for OAuth flows.
+  getOAuthAuthorizeURL(mcpId: string, credentialName: string): string {
+    const token = this.getToken();
+    return `${this.baseURL}/api/v1/oauth/authorize?mcp_id=${mcpId}&credential_name=${encodeURIComponent(credentialName)}${token ? `&token=${token}` : ''}`;
+  }
+
+  // ============ Agents ============
+
+  async listAgents(query?: string) {
+    const q = query ? `?q=${encodeURIComponent(query)}` : "";
+    return this.request<AgentListResponse>("GET", `/api/v1/agents${q}`);
+  }
+
+  async getAgent(id: string) {
+    return this.request<AgentDetailResponse>("GET", `/api/v1/agents/${id}`);
+  }
+
+  async registerAgent(req: RegisterAgentRequest) {
+    return this.request<{ success: boolean; message: string; agent: Agent }>(
+      "POST",
+      "/api/v1/agents/register",
+      req
+    );
+  }
+
+  async updateAgent(id: string, req: UpdateAgentRequest) {
+    return this.request<{ success: boolean; message: string }>(
+      "PUT",
+      `/api/v1/agents/${id}`,
+      req
+    );
+  }
+
+  async deleteAgent(id: string) {
+    return this.request<void>("DELETE", `/api/v1/agents/${id}`);
+  }
+
+  async refreshAgentSkills(id: string) {
+    return this.request<{ success: boolean; num_skills: number; skills: AgentSkill[] }>(
+      "POST",
+      `/api/v1/agents/${id}/refresh`
     );
   }
 }
@@ -181,24 +254,59 @@ export interface APIKey {
 
 // ============ MCP Types ============
 
+export interface ConfigSchema {
+  headers: { key: string; value: string }[];
+  query_params?: { key: string; value: string }[];
+}
+
+export interface AuthConfig {
+  id: string;
+  mcp_server_id: string;
+  credential_name: string;
+  auth_type: "static" | "oauth";
+  required: boolean;
+  description?: string;
+  auth_url?: string;
+  token_url?: string;
+  client_id?: string;
+  scopes?: string[];
+}
+
+export interface RegisterAuthConfig {
+  credential_name: string;
+  auth_type: "static" | "oauth";
+  required: boolean;
+  description?: string;
+  auth_url?: string;
+  token_url?: string;
+  client_id?: string;
+  client_secret?: string;
+  scopes?: string[];
+}
+
 export interface MCP {
   id: string;
   name: string;
   description: string;
   endpoint: string;
-  mcp_endpoint: string;
-  sse_endpoint: string;
   transport: string;
   tags: string[];
   num_tools: number;
   owner_address: string;
   payout_address: string;
   currency: string;
+  requires_config: boolean;
+  config_schema?: ConfigSchema;
+  auth_configs?: AuthConfig[];
+  source: string;
+  source_url?: string;
+  is_verified: boolean;
+  icon_url?: string;
   status: string;
+  is_healthy: boolean;
+  last_check_at?: string;
   created_at: string;
   updated_at: string;
-  is_healthy: boolean;
-  last_check_at: string;
 }
 
 export interface MCPListResponse {
@@ -212,7 +320,7 @@ export interface MCPToolEntry {
   tool_name: string;
   description: string;
   input_schema?: Record<string, unknown>;
-  price_per_call: number;
+  price_usd: number;
 }
 
 export interface DiscoverMCPRequest {
@@ -223,6 +331,8 @@ export interface DiscoverMCPRequest {
 
 export interface DiscoverMCPResponse {
   tools: DiscoveredTool[];
+  requires_auth?: boolean;
+  error?: string;
 }
 
 export interface DiscoveredTool {
@@ -233,7 +343,7 @@ export interface DiscoveredTool {
 
 export interface ToolPricing {
   name: string;
-  price_per_call: number;
+  price_usd: number;
 }
 
 export interface RegisterMCPRequest {
@@ -241,14 +351,16 @@ export interface RegisterMCPRequest {
   endpoint: string;
   owner_address: string;
   description?: string;
-  mcp_endpoint?: string;
-  sse_endpoint?: string;
   transport?: string;
   tags?: string[];
   payout_address?: string;
   currency?: string;
   upstream_headers?: Record<string, string>;
   tools?: ToolPricing[];
+  discovered_tools?: DiscoveredTool[]; // Full tool info from discovery
+  requires_config?: boolean;
+  config_schema?: ConfigSchema;
+  auth_configs?: RegisterAuthConfig[];
 }
 
 export interface RegisterMCPResponse {
@@ -261,8 +373,6 @@ export interface UpdateMCPRequest {
   name?: string;
   description?: string;
   endpoint?: string;
-  mcp_endpoint?: string;
-  sse_endpoint?: string;
   transport?: string;
   tags?: string[];
   payout_address?: string;
@@ -279,11 +389,6 @@ export interface RefreshToolsResponse {
 
 // ============ Billing Types ============
 
-export interface BalanceResponse {
-  owner_address: string;
-  credits: number;
-}
-
 export interface CallLog {
   id: string;
   gateway_type: string;
@@ -291,14 +396,137 @@ export interface CallLog {
   tool_name: string;
   caller_address: string;
   owner_address: string;
-  credits_charged: number;
   status: string;
   duration_ms?: number;
   error_message?: string;
   created_at: string;
 }
 
-export interface HistoryResponse {
+export interface UsageResponse {
   calls: CallLog[];
   total: number;
+}
+
+export interface PaymentLog {
+  id: string;
+  tx_signature: string;
+  payer_address: string;
+  server_id: string;
+  tool_name: string;
+  token: string;
+  amount_raw: number;
+  amount_usd: number;
+  owner_address: string;
+  owner_share_usd: number;
+  platform_share_usd: number;
+  status: string;
+  created_at: string;
+}
+
+export interface PaymentHistoryResponse {
+  payments: PaymentLog[];
+  total: number;
+}
+
+// ============ Credentials Types ============
+
+export interface CredentialInfo {
+  id: string;
+  mcp_server_id: string;
+  mcp_name?: string;
+  token_name: string;
+  created_at: string;
+  last_used_at?: string;
+  auto_refreshed?: boolean;
+  num_tools?: number;
+  auto_refresh_error?: string;
+}
+
+export interface CredentialsListResponse {
+  credentials: CredentialInfo[];
+}
+
+export interface CreateCredentialRequest {
+  mcp_server_id: string;
+  token_name: string;
+  token: string;
+}
+
+export type CreateCredentialResponse = CredentialInfo;
+
+export interface UpdateCredentialRequest {
+  token?: string;
+  token_name?: string;
+}
+
+// ============ Agent Types ============
+
+export interface Agent {
+  id: string;
+  name: string;
+  description: string;
+  endpoint: string;
+  provider_org?: string;
+  provider_url?: string;
+  version: string;
+  input_modes: string[];
+  output_modes: string[];
+  streaming: boolean;
+  tags: string[];
+  owner_address: string;
+  payout_address?: string;
+  price_per_task: number;
+  requires_config: boolean;
+  config_schema?: ConfigSchema;
+  status: string;
+  is_healthy: boolean;
+  last_check_at?: string;
+  num_skills: number;
+  source: string;
+  is_verified: boolean;
+  icon_url?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AgentSkill {
+  id: string;
+  agent_id: string;
+  skill_id: string;
+  name: string;
+  description: string;
+  tags?: string[];
+  examples?: string[];
+  input_modes?: string[];
+  output_modes?: string[];
+  created_at: string;
+}
+
+export interface AgentListResponse {
+  agents: Agent[];
+  total: number;
+}
+
+export interface AgentDetailResponse {
+  agent: Agent;
+  skills: AgentSkill[];
+}
+
+export interface RegisterAgentRequest {
+  endpoint: string;
+  name?: string;
+  description?: string;
+  tags?: string[];
+  payout_address?: string;
+  price_per_task?: number;
+}
+
+export interface UpdateAgentRequest {
+  name?: string;
+  description?: string;
+  endpoint?: string;
+  tags?: string[];
+  payout_address?: string;
+  price_per_task?: number;
+  status?: string;
 }

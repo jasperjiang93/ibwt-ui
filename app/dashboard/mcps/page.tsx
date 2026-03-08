@@ -1,12 +1,19 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import { useWallet } from "@solana/wallet-adapter-react";
 import { useQuery } from "@tanstack/react-query";
 import { gateway, type MCP } from "@/lib/api";
 import { useGatewayStore } from "@/lib/gateway-store";
+import { StatusBadge } from "@/components/ui/status-badge";
+
+type Filter = "all" | "mine";
 
 export default function MCPsPage() {
   const { apiKey } = useGatewayStore();
+  const { publicKey } = useWallet();
+  const [filter, setFilter] = useState<Filter>("all");
 
   const { data, isLoading } = useQuery({
     queryKey: ["dashboard-mcps"],
@@ -14,12 +21,34 @@ export default function MCPsPage() {
     enabled: !!apiKey,
   });
 
-  const mcps: MCP[] = data?.tools || [];
+  const allMcps: MCP[] = data?.tools || [];
+  const walletAddress = publicKey?.toBase58() || "";
+  const mcps =
+    filter === "mine"
+      ? allMcps.filter((m) => m.owner_address === walletAddress)
+      : allMcps;
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">MCPs</h1>
+        <div className="flex items-center gap-4">
+          <h1 className="text-2xl font-bold">MCPs</h1>
+          <div className="flex gap-1">
+            {(["all", "mine"] as Filter[]).map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+                  filter === f
+                    ? "bg-[rgba(212,175,55,0.15)] text-[#d4af37] border border-[rgba(212,175,55,0.3)]"
+                    : "text-[#888] hover:text-white"
+                }`}
+              >
+                {f === "all" ? "All" : "Mine"}
+              </button>
+            ))}
+          </div>
+        </div>
         <Link
           href="/dashboard/mcps/register"
           className="px-4 py-2 bg-[#d4af37] text-black font-medium rounded-lg hover:bg-[#c4a030] transition"
@@ -43,9 +72,11 @@ export default function MCPsPage() {
         </div>
       ) : mcps.length === 0 ? (
         <div className="text-center py-16 border border-gray-800 rounded-xl">
-          <p className="text-[#888] mb-2">No MCPs registered yet</p>
+          <p className="text-[#888] mb-2">
+            {filter === "mine" ? "You haven't registered any MCPs" : "No MCPs found"}
+          </p>
           <p className="text-sm text-[#666]">
-            Register an MCP server to start earning credits
+            Register an MCP server to start earning revenue
           </p>
         </div>
       ) : (
@@ -86,21 +117,5 @@ export default function MCPsPage() {
         </div>
       )}
     </div>
-  );
-}
-
-function StatusBadge({ status }: { status: string }) {
-  const colors: Record<string, string> = {
-    active: "bg-green-500/20 text-green-400",
-    inactive: "bg-gray-500/20 text-gray-400",
-    pending: "bg-yellow-500/20 text-yellow-400",
-  };
-
-  return (
-    <span
-      className={`px-2 py-0.5 rounded text-xs ${colors[status] || "bg-gray-500/20 text-gray-400"}`}
-    >
-      {status}
-    </span>
   );
 }
