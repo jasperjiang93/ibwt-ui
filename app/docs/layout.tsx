@@ -11,23 +11,28 @@ const navSections = [
     ],
   },
   {
-    title: "Using",
+    title: "Integrate",
     items: [
-      { href: "/docs/mcps", label: "MCPs" },
-      { href: "/docs/agents", label: "Agents" },
-      { href: "/docs/credentials", label: "Credentials" },
+      { href: "/docs/claude-code", label: "Claude Code" },
+      { href: "/docs/cursor-windsurf", label: "Cursor & Windsurf" },
+      { href: "/docs/api-client", label: "API / Custom Client" },
     ],
   },
   {
-    title: "Providing",
+    title: "Concepts",
     items: [
-      { href: "/docs/providers", label: "Provider Guide" },
+      { href: "/docs/mcp-gateway", label: "MCP Gateway" },
+      { href: "/docs/agents", label: "AI Agents (A2A)" },
+      { href: "/docs/credentials", label: "Credentials" },
       { href: "/docs/payments", label: "Payments (x402)" },
     ],
   },
   {
-    title: "Reference",
-    items: [{ href: "/docs/api", label: "API Reference" }],
+    title: "Build",
+    items: [
+      { href: "/docs/providers", label: "Provider Guide" },
+      { href: "/docs/sdks", label: "SDKs" },
+    ],
   },
 ];
 

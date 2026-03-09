@@ -79,13 +79,6 @@ export default function ProvidersDocPage() {
         </ul>
       </DocSection>
 
-      <DocSection title="Health Checks">
-        <p className="text-[#888]">
-          The gateway pings your endpoint every 5 minutes. If unreachable, your MCP/agent
-          is marked as <code className="text-[#ccc]">inactive</code> and won&apos;t appear in marketplace searches.
-          It automatically re-activates when connectivity is restored.
-        </p>
-      </DocSection>
     </>
   );
 }

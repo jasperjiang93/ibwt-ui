@@ -1,8 +1,17 @@
 app = "ibwt-ui"
 primary_region = "iad"
 
-[deploy]
-release_command = "npx prisma db push"
+[build.args]
+NEXT_PUBLIC_GATEWAY_URL = "https://gateway.inbotwetrust.com"
+NEXT_PUBLIC_BASE_URL = "www.inbotwetrust.com"
+NEXT_PUBLIC_NETWORK = "testnet"
+NEXT_PUBLIC_SOLANA_RPC_URL_TESTNET = "https://api.devnet.solana.com"
+NEXT_PUBLIC_SOLANA_RPC_URL_MAINNET = "https://api.mainnet-beta.solana.com"
+NEXT_PUBLIC_IBWT_TOKEN_MINT_TESTNET = "9rq5Nx45W9ku1bp31tctn7ynoTKQBaEDtzv6VQxfBd9B"
+NEXT_PUBLIC_IBWT_TOKEN_MINT_MAINNET = "Co4KTCKPdAnFhJWNUbPdCn3VFF5xSATaxXpPaGVepump"
+NEXT_PUBLIC_TREASURY_WALLET_TESTNET = "CqG2enYhFVySUJMs6ywwz2hc9K1BeNtFuE4e1oKhUYh7"
+NEXT_PUBLIC_TREASURY_WALLET_MAINNET = "CqG2enYhFVySUJMs6ywwz2hc9K1BeNtFuE4e1oKhUYh7"
+NEXT_PUBLIC_GA_ID = "G-DGJDZ7F6ME"
 
 [http_service]
 auto_start_machines = true

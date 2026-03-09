@@ -303,8 +303,6 @@ export interface MCP {
   is_verified: boolean;
   icon_url?: string;
   status: string;
-  is_healthy: boolean;
-  last_check_at?: string;
   created_at: string;
   updated_at: string;
 }
@@ -479,8 +477,6 @@ export interface Agent {
   requires_config: boolean;
   config_schema?: ConfigSchema;
   status: string;
-  is_healthy: boolean;
-  last_check_at?: string;
   num_skills: number;
   source: string;
   is_verified: boolean;

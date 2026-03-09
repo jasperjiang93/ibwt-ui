@@ -4,7 +4,6 @@ const colors: Record<string, string> = {
   inactive: "bg-gray-500/20 text-gray-400",
   pending: "bg-yellow-500/20 text-yellow-400",
   error: "bg-red-500/20 text-red-400",
-  disconnected: "bg-red-500/20 text-red-400",
 };
 
 export function StatusBadge({ status }: { status: string }) {

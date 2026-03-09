@@ -6,7 +6,7 @@ import { WalletButton } from "@/components/wallet-button";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { GatewayProvider } from "@/components/gateway-provider";
 import { useGatewayStore } from "@/lib/gateway-store";
-import { IconOverview, IconTools, IconAgents, IconCode, IconLock, IconWallet, IconKey } from "@/components/icons";
+import { IconOverview, IconTools, IconAgents, IconCode, IconLock, IconWallet, IconKey, IconBook } from "@/components/icons";
 import { IS_MAINNET } from "@/lib/network";
 
 const isTestnet = !IS_MAINNET;
@@ -107,6 +107,21 @@ export default function DashboardLayout({
               );
             })}
           </nav>
+
+          {/* Docs link */}
+          <div className="px-4 pb-2">
+            <Link
+              href="/docs"
+              target="_blank"
+              className="flex items-center gap-3 px-4 py-3 rounded-lg transition font-medium text-[#888] hover:bg-[rgba(255,255,255,0.05)] hover:text-[#e5e5e5]"
+            >
+              <IconBook size={20} />
+              <span>Docs</span>
+              <svg className="w-3 h-3 ml-auto opacity-50" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M3.5 1.5h7v7M10 2L2 10" />
+              </svg>
+            </Link>
+          </div>
 
           {/* Gateway status */}
           <div className="p-4 border-t border-[rgba(212,175,55,0.1)]">

@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { isRateLimited, getClientIP } from "@/lib/rate-limit";
 
 const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL || "jasperjiang93@gmail.com";
@@ -30,11 +29,6 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-
-    // Store in database
-    await prisma.contactMessage.create({
-      data: { name, email, subject, message },
-    });
 
     // Send notification email
     const subjectLabels: Record<string, string> = {
